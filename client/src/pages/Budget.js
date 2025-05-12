@@ -24,7 +24,13 @@ import {
   Card,
   CardContent,
   Grid,
+  LinearProgress,
+  Tooltip,
 } from '@mui/material';
+import {
+  TrendingUp,
+  TrendingDown,
+} from '@mui/icons-material';
 import api from '../utils/api';
 
 // Budgets page to manage monthly budgets per category
@@ -209,6 +215,30 @@ function Budgets() {
     setEditId(null);
   };
 
+  // Get current month in YYYY-MM format
+  const getCurrentMonth = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  };
+
+  // Get budgets for current month
+  const getCurrentMonthBudgets = () => {
+    const currentMonth = getCurrentMonth();
+    return budgets.filter(budget => budget.month === currentMonth);
+  };
+
+  // Calculate overall budget health (percentage of budgets that are on track)
+  const calculateBudgetHealth = () => {
+    if (budgets.length === 0) return 100;
+    
+    const onTrackCount = budgets.filter(budget => {
+      const spent = calculateSpentAmount(budget.category, budget.month);
+      return spent <= budget.amount;
+    }).length;
+    
+    return Math.round((onTrackCount / budgets.length) * 100);
+  };
+
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1400, mx: 'auto', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       {/* Header */}
@@ -224,6 +254,7 @@ function Budgets() {
       >
         Budgets
       </Typography>
+
 
       {/* Summary Statistics */}
       <Grid
@@ -281,6 +312,119 @@ function Budgets() {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Budget Progress Visualization */}
+      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4 }}>
+        <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              color: '#1976d2',
+              fontWeight: 'bold',
+              mb: 3,
+              textAlign: 'center',
+            }}
+          >
+            Budget Progress
+          </Typography>
+          
+          {budgets.length === 0 ? (
+            <Typography variant="body1" sx={{ textAlign: 'center', py: 3 }}>
+              No budgets found. Add your first budget using the form below.
+            </Typography>
+          ) : (
+            <Grid container spacing={2}>
+              {budgets.map((budget) => {
+                const spent = calculateSpentAmount(budget.category, budget.month);
+                const remaining = budget.amount - spent;
+                const percentSpent = (spent / budget.amount) * 100;
+                const isOverBudget = spent > budget.amount;
+                
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={budget.id}>
+                    <Card sx={{ boxShadow: 2, borderRadius: 2 }}>
+                      <CardContent>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                          <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+                            {budget.category}
+                          </Typography>
+                          <Tooltip title={`Month: ${budget.month}`}>
+                            <Typography variant="body2" color="text.secondary">
+                              {budget.month}
+                            </Typography>
+                          </Tooltip>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            Budget: ${budget.amount.toFixed(2)}
+                          </Typography>
+                          <Typography 
+                            variant="body2" 
+                            sx={{ 
+                              color: isOverBudget ? 'red' : 'green',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            {isOverBudget ? (
+                              <>
+                                <TrendingUp sx={{ fontSize: 16, mr: 0.5 }} />
+                                Over by ${Math.abs(remaining).toFixed(2)}
+                              </>
+                            ) : (
+                              <>
+                                <TrendingDown sx={{ fontSize: 16, mr: 0.5 }} />
+                                Under by ${remaining.toFixed(2)}
+                              </>
+                            )}
+                          </Typography>
+                        </Box>
+                        
+                        <Box sx={{ mt: 2 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Box sx={{ width: '100%', mr: 1 }}>
+                              <Tooltip title={`${percentSpent.toFixed(0)}% of budget used`}>
+                                <LinearProgress
+                                  variant="determinate"
+                                  value={Math.min(percentSpent, 100)}
+                                  sx={{
+                                    height: 8,
+                                    borderRadius: 5,
+                                    backgroundColor: '#e0e0e0',
+                                    '& .MuiLinearProgress-bar': {
+                                      backgroundColor: percentSpent > 90 ? 'red' : 
+                                                      percentSpent > 75 ? 'orange' : 'green',
+                                    }
+                                  }}
+                                />
+                              </Tooltip>
+                            </Box>
+                            <Box sx={{ minWidth: 35 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                {Math.min(percentSpent, 100).toFixed(0)}%
+                              </Typography>
+                            </Box>
+                          </Box>
+                          
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                              Spent: ${spent.toFixed(2)}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              Remaining: ${remaining.toFixed(2)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+        </Paper>
+      </Box>
 
       {/* Error/Success Messages */}
       {error && (
