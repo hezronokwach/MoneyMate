@@ -10,7 +10,8 @@ const authenticate = (req, res, next) => {
     if (err) {
       return res.status(401).json({ error: 'Invalid token' });
     }
-    req.userId = decoded.id;
+    // Set the entire user object instead of just the ID
+    req.user = { id: decoded.id };
     next();
   });
 };
