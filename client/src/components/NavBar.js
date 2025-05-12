@@ -13,14 +13,12 @@ import {
   ListItemButton,
   ListItemText,
   Box,
-  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
 function NavBar() {
   const { user, logout } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const theme = useTheme();
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -44,7 +42,12 @@ function NavBar() {
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: theme.palette.primary.main }}>
+      <Typography
+        variant="h6"
+        component={RouterLink}
+        to="/"
+        sx={{ mb: 2, fontWeight: 'bold', color: '#1976d2', textDecoration: 'none' }}
+      >
         MoneyMate
       </Typography>
       <List>
@@ -55,10 +58,10 @@ function NavBar() {
               to={link.path}
               sx={{
                 '&:hover': {
-                  backgroundColor: theme.palette.grey[200],
+                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
                   '& .MuiListItemText-root': {
-                    color: theme.palette.primary.main,
-                    textDecoration: 'underline',
+                    color: '#1976d2',
+                    fontWeight: 'bold',
                   },
                 },
               }}
@@ -78,8 +81,9 @@ function NavBar() {
               to="/login"
               sx={{
                 mb: 1,
+                backgroundColor: '#1976d2',
                 '&:hover': {
-                  backgroundColor: '#1565c0',
+                  backgroundColor: '#0d47a1',
                 },
               }}
             >
@@ -91,8 +95,9 @@ function NavBar() {
               component={RouterLink}
               to="/register"
               sx={{
+                backgroundColor: '#1976d2',
                 '&:hover': {
-                  backgroundColor: '#1565c0',
+                  backgroundColor: '#0d47a1',
                 },
               }}
             >
@@ -105,11 +110,11 @@ function NavBar() {
             variant="outlined"
             onClick={logout}
             sx={{
-              borderColor: theme.palette.grey[500],
-              color: theme.palette.grey[800],
+              borderColor: '#757575',
+              color: '#424242',
               '&:hover': {
-                borderColor: theme.palette.primary.light,
-                color: theme.palette.primary.light,
+                borderColor: '#0d47a1',
+                color: '#0d47a1',
               },
             }}
           >
@@ -134,8 +139,14 @@ function NavBar() {
           </IconButton>
           <Typography
             variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, fontWeight: 'bold' }}
+            component={RouterLink}
+            to="/"
+            sx={{
+              flexGrow: 1,
+              fontWeight: 'bold',
+              color: 'white',
+              textDecoration: 'none',
+            }}
           >
             MoneyMate
           </Typography>
@@ -150,8 +161,9 @@ function NavBar() {
                   color: 'white',
                   textDecoration: 'none',
                   '&:hover': {
-                    color: '#ffffff',
-                    textDecoration: 'underline',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    color: 'white',
+                    fontWeight: 'bold',
                   },
                 }}
               >
@@ -166,8 +178,9 @@ function NavBar() {
                   to="/login"
                   sx={{
                     mx: 1,
+                    backgroundColor: '#1976d2',
                     '&:hover': {
-                      backgroundColor: '#1565c0',
+                      backgroundColor: '#0d47a1',
                     },
                   }}
                 >
@@ -179,8 +192,9 @@ function NavBar() {
                   to="/register"
                   sx={{
                     mx: 1,
+                    backgroundColor: '#1976d2',
                     '&:hover': {
-                      backgroundColor: '#1565c0',
+                      backgroundColor: '#0d47a1',
                     },
                   }}
                 >
@@ -196,8 +210,8 @@ function NavBar() {
                   borderColor: 'white',
                   color: 'white',
                   '&:hover': {
-                    borderColor: theme.palette.primary.light,
-                    color: theme.palette.primary.light,
+                    borderColor: '#0d47a1',
+                    color: '#0d47a1',
                   },
                 }}
               >

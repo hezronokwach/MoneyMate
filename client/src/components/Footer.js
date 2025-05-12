@@ -11,7 +11,7 @@ function Footer() {
         mt: 'auto',
       }}
     >
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body1" color="text.primary">
         MoneyMate © {new Date().getFullYear()}
       </Typography>
     </Box>
