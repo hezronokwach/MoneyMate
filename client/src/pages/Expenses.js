@@ -136,7 +136,7 @@ function Expenses() {
 
     try {
       if (editId) {
-        await api.put(`/transactions/Ksh.{editId}`, payload);
+        await api.put(`/transactions/${editId}`, payload);
       } else {
         await api.post('/transactions', payload);
       }
@@ -195,50 +195,121 @@ function Expenses() {
   };
 
   return (
-    <Box sx={{ p: 4, maxWidth: 1200, mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+    <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1400, mx: 'auto', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
+      {/* Header */}
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{
+          color: '#1976d2',
+          fontWeight: 'bold',
+          textAlign: 'center',
+          mb: 4,
+        }}
+      >
         Expenses
       </Typography>
 
       {/* Summary Statistics */}
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="#1976d2">Total Income</Typography>
-              <Typography variant="h5">Ksh.{summary.totalIncome.toFixed(2)}</Typography>
-            </CardContent>
-          </Card>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            maxWidth: 1200,
+            width: '100%',
+          }}
+        >
+          <Grid item xs={12} sm={4}>
+            <Card
+              sx={{
+                boxShadow: 3,
+                borderRadius: 2,
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" color="#1976d2" gutterBottom>
+                  Total Income
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                  ${summary.totalIncome.toFixed(2)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Card
+              sx={{
+                boxShadow: 3,
+                borderRadius: 2,
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" color="#1976d2" gutterBottom>
+                  Total Expenses
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                  ${summary.totalExpense.toFixed(2)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Card
+              sx={{
+                boxShadow: 3,
+                borderRadius: 2,
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              }}
+            >
+              <CardContent>
+                <Typography variant="h6" color="#1976d2" gutterBottom>
+                  Net Balance
+                </Typography>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 'bold',
+                    color: summary.netBalance >= 0 ? 'green' : 'red',
+                  }}
+                >
+                  ${summary.netBalance.toFixed(2)}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="#1976d2">Total Expenses</Typography>
-              <Typography variant="h5">Ksh.{summary.totalExpense.toFixed(2)}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" color="#1976d2">Net Balance</Typography>
-              <Typography variant="h5" color={summary.netBalance >= 0 ? 'green' : 'red'}>
-                Ksh.{summary.netBalance.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      </Box>
 
       {/* Error Message */}
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert severity="error" sx={{ mb: 3, maxWidth: 1200, mx: 'auto' }}>
           {error}
         </Alert>
       )}
 
       {/* Transaction Form */}
-      <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          mb: 4,
+          p: 3,
+          bgcolor: '#ffffff',
+          borderRadius: 2,
+          boxShadow: 2,
+          maxWidth: 1200,
+          mx: 'auto',
+        }}
+      >
+        <Typography variant="h6" sx={{ color: '#1976d2', mb: 2, fontWeight: 'medium' }}>
+          {editId ? 'Edit Transaction' : 'Add Transaction'}
+        </Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
           <TextField
             label="Amount"
@@ -247,9 +318,10 @@ function Expenses() {
             value={formData.amount}
             onChange={handleInputChange}
             required
-            sx={{ flex: '1 1 200px' }}
+            sx={{ flex: { xs: '1 1 100%', sm: '1 1 200px' } }}
+            variant="outlined"
           />
-          <FormControl sx={{ flex: '1 1 200px' }}>
+          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 200px' } }}>
             <InputLabel>Type</InputLabel>
             <Select
               name="type"
@@ -261,7 +333,7 @@ function Expenses() {
               <MenuItem value="expense">Expense</MenuItem>
             </Select>
           </FormControl>
-          <FormControl sx={{ flex: '1 1 200px' }}>
+          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 200px' } }}>
             <InputLabel>Category</InputLabel>
             <Select
               name="category"
@@ -281,7 +353,13 @@ function Expenses() {
               label="Date"
               value={formData.date}
               onChange={handleDateChange}
-              slotProps={{ textField: { required: true, sx: { flex: '1 1 200px' } } }}
+              slotProps={{
+                textField: {
+                  required: true,
+                  sx: { flex: { xs: '1 1 100%', sm: '1 1 200px' } },
+                  variant: 'outlined',
+                },
+              }}
             />
           </LocalizationProvider>
           <TextField
@@ -290,13 +368,19 @@ function Expenses() {
             value={formData.description}
             onChange={handleInputChange}
             sx={{ flex: '1 1 100%' }}
+            variant="outlined"
           />
         </Box>
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
           <Button
             type="submit"
             variant="contained"
-            sx={{ backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#0d47a1' } }}
+            sx={{
+              backgroundColor: '#1976d2',
+              '&:hover': { backgroundColor: '#0d47a1' },
+              borderRadius: 1,
+              px: 3,
+            }}
           >
             {editId ? 'Update Transaction' : 'Add Transaction'}
           </Button>
@@ -304,7 +388,12 @@ function Expenses() {
             <Button
               variant="outlined"
               onClick={resetForm}
-              sx={{ ml: 2 }}
+              sx={{
+                borderColor: '#1976d2',
+                color: '#1976d2',
+                borderRadius: 1,
+                px: 3,
+              }}
             >
               Cancel
             </Button>
@@ -313,51 +402,69 @@ function Expenses() {
       </Box>
 
       {/* Transactions Table */}
-      {loading ? (
-        <CircularProgress />
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Amount</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell>Ksh.{transaction.amount.toFixed(2)}</TableCell>
-                  <TableCell>{transaction.type}</TableCell>
-                  <TableCell>{transaction.category}</TableCell>
-                  <TableCell>{transaction.date}</TableCell>
-                  <TableCell>{transaction.description || '-'}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleEdit(transaction)}
-                      sx={{ mr: 1 }}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleDeleteOpen(transaction.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
+      <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <TableContainer
+            component={Paper}
+            sx={{ boxShadow: 2, borderRadius: 2 }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow sx={{ bgcolor: '#1976d2' }}>
+                  <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Amount</TableCell>
+                  <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Type</TableCell>
+                  <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Category</TableCell>
+                  <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Date</TableCell>
+                  <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Description</TableCell>
+                  <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Actions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+              </TableHead>
+              <TableBody>
+                {transactions.map((transaction) => (
+                  <TableRow
+                    key={transaction.id}
+                    sx={{
+                      '&:hover': { bgcolor: '#f5f5f5' },
+                    }}
+                  >
+                    <TableCell>${transaction.amount.toFixed(2)}</TableCell>
+                    <TableCell>{transaction.type}</TableCell>
+                    <TableCell>{transaction.category}</TableCell>
+                    <TableCell>{transaction.date}</TableCell>
+                    <TableCell>{transaction.description || '-'}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleEdit(transaction)}
+                        sx={{
+                          mr: 1,
+                          borderColor: '#1976d2',
+                          color: '#1976d2',
+                          borderRadius: 1,
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleDeleteOpen(transaction.id)}
+                        sx={{ borderRadius: 1 }}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Box>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteClose}>
@@ -366,8 +473,17 @@ function Expenses() {
           Are you sure you want to delete this transaction?
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteClose}>Cancel</Button>
-          <Button onClick={handleDelete} color="error">
+          <Button
+            onClick={handleDeleteClose}
+            sx={{ color: '#1976d2' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="error"
+            sx={{ borderRadius: 1 }}
+          >
             Delete
           </Button>
         </DialogActions>
