@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 const router = express.Router();
 
-// Register
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -24,7 +23,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
   db.get('SELECT * FROM users WHERE username = ?', [username], async (err, user) => {
