@@ -10,6 +10,7 @@ import {
   Drawer,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Box,
   useTheme,
@@ -38,32 +39,84 @@ function NavBar() {
 
   const drawerContent = (
     <Box
-      sx={{ width: 250 }}
+      sx={{ width: 250, p: 2 }}
       role="presentation"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: theme.palette.primary.main }}>
+        MoneyMate
+      </Typography>
       <List>
         {navLinks.map((link) => (
-          <ListItem button key={link.text} component={RouterLink} to={link.path}>
-            <ListItemText primary={link.text} />
+          <ListItem key={link.text} disablePadding>
+            <ListItemButton
+              component={RouterLink}
+              to={link.path}
+              sx={{
+                '&:hover': {
+                  backgroundColor: theme.palette.grey[200],
+                  '& .MuiListItemText-root': {
+                    color: theme.palette.primary.main,
+                    textDecoration: 'underline',
+                  },
+                },
+              }}
+            >
+              <ListItemText primary={link.text} />
+            </ListItemButton>
           </ListItem>
         ))}
+      </List>
+      <Box sx={{ mt: 2 }}>
         {!user ? (
           <>
-            <ListItem button component={RouterLink} to="/login">
-              <ListItemText primary="Login" />
-            </ListItem>
-            <ListItem button component={RouterLink} to="/register">
-              <ListItemText primary="Register" />
-            </ListItem>
+            <Button
+              fullWidth
+              variant="contained"
+              component={RouterLink}
+              to="/login"
+              sx={{
+                mb: 1,
+                '&:hover': {
+                  backgroundColor: '#1565c0',
+                },
+              }}
+            >
+              Login
+            </Button>
+            <Button
+              fullWidth
+              variant="contained"
+              component={RouterLink}
+              to="/register"
+              sx={{
+                '&:hover': {
+                  backgroundColor: '#1565c0',
+                },
+              }}
+            >
+              Register
+            </Button>
           </>
         ) : (
-          <ListItem button onClick={logout}>
-            <ListItemText primary="Logout" />
-          </ListItem>
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={logout}
+            sx={{
+              borderColor: theme.palette.grey[500],
+              color: theme.palette.grey[800],
+              '&:hover': {
+                borderColor: theme.palette.primary.light,
+                color: theme.palette.primary.light,
+              },
+            }}
+          >
+            Logout
+          </Button>
         )}
-      </List>
+      </Box>
     </Box>
   );
 
@@ -79,32 +132,75 @@ function NavBar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1, fontWeight: 'bold' }}
+          >
             MoneyMate
           </Typography>
-          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             {navLinks.map((link) => (
-              <Button
+              <Typography
                 key={link.text}
-                color="inherit"
                 component={RouterLink}
                 to={link.path}
-                sx={{ mx: 1 }}
+                sx={{
+                  mx: 2,
+                  color: 'white',
+                  textDecoration: 'none',
+                  '&:hover': {
+                    color: '#ffffff',
+                    textDecoration: 'underline',
+                  },
+                }}
               >
                 {link.text}
-              </Button>
+              </Typography>
             ))}
             {!user ? (
               <>
-                <Button color="inherit" component={RouterLink} to="/login" sx={{ mx: 1 }}>
+                <Button
+                  variant="contained"
+                  component={RouterLink}
+                  to="/login"
+                  sx={{
+                    mx: 1,
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
+                    },
+                  }}
+                >
                   Login
                 </Button>
-                <Button color="inherit" component={RouterLink} to="/register" sx={{ mx: 1 }}>
+                <Button
+                  variant="contained"
+                  component={RouterLink}
+                  to="/register"
+                  sx={{
+                    mx: 1,
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
+                    },
+                  }}
+                >
                   Register
                 </Button>
               </>
             ) : (
-              <Button color="inherit" onClick={logout} sx={{ mx: 1 }}>
+              <Button
+                variant="outlined"
+                onClick={logout}
+                sx={{
+                  mx: 1,
+                  borderColor: 'white',
+                  color: 'white',
+                  '&:hover': {
+                    borderColor: theme.palette.primary.light,
+                    color: theme.palette.primary.light,
+                  },
+                }}
+              >
                 Logout
               </Button>
             )}
