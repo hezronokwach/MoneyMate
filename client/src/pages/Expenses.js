@@ -211,84 +211,84 @@ function Expenses() {
       </Typography>
 
       {/* Summary Statistics */}
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
-        <Grid
-          container
-          spacing={2}
-          sx={{
-            maxWidth: 1200,
-            width: '100%',
-          }}
-        >
-          <Grid item xs={12} sm={4}>
-            <Card
-              sx={{
-                boxShadow: 3,
-                borderRadius: 2,
-                transition: 'transform 0.2s',
-                '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" color="#1976d2" gutterBottom>
-                  Total Income
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                  ${summary.totalIncome.toFixed(2)}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Card
-              sx={{
-                boxShadow: 3,
-                borderRadius: 2,
-                transition: 'transform 0.2s',
-                '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" color="#1976d2" gutterBottom>
-                  Total Expenses
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                  ${summary.totalExpense.toFixed(2)}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Card
-              sx={{
-                boxShadow: 3,
-                borderRadius: 2,
-                transition: 'transform 0.2s',
-                '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-              }}
-            >
-              <CardContent>
-                <Typography variant="h6" color="#1976d2" gutterBottom>
-                  Net Balance
-                </Typography>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontWeight: 'bold',
-                    color: summary.netBalance >= 0 ? 'green' : 'red',
-                  }}
-                >
-                  ${summary.netBalance.toFixed(2)}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+      <Grid
+        container
+        spacing={0.5} // Reduced spacing between cards
+        sx={{
+          maxWidth: 900, // Slightly reduced max width
+          mx: 'auto',
+          mb: 4,
+          justifyContent: 'center', // Center the cards
+        }}
+      >
+        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
+          <Card
+            sx={{
+              boxShadow: 3,
+              borderRadius: 2,
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" color="#1976d2" gutterBottom>
+                Total Income
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                ${summary.totalIncome.toFixed(2)}
+              </Typography>
+            </CardContent>
+          </Card>
         </Grid>
-      </Box>
+        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
+          <Card
+            sx={{
+              boxShadow: 3,
+              borderRadius: 2,
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" color="#1976d2" gutterBottom>
+                Total Expenses
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                ${summary.totalExpense.toFixed(2)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
+          <Card
+            sx={{
+              boxShadow: 3,
+              borderRadius: 2,
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" color="#1976d2" gutterBottom>
+                Net Balance
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontWeight: 'bold',
+                  color: summary.netBalance >= 0 ? 'green' : 'red',
+                }}
+              >
+                ${summary.netBalance.toFixed(2)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Error Message */}
       {error && (
-        <Alert severity="error" sx={{ mb: 3, maxWidth: 1200, mx: 'auto' }}>
+        <Alert severity="error" sx={{ mb: 3, maxWidth: 1000, mx: 'auto' }}>
           {error}
         </Alert>
       )}
@@ -303,7 +303,7 @@ function Expenses() {
           bgcolor: '#ffffff',
           borderRadius: 2,
           boxShadow: 2,
-          maxWidth: 1200,
+          maxWidth: 800,
           mx: 'auto',
         }}
       >
@@ -318,10 +318,10 @@ function Expenses() {
             value={formData.amount}
             onChange={handleInputChange}
             required
-            sx={{ flex: { xs: '1 1 100%', sm: '1 1 200px' } }}
+            sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}
             variant="outlined"
           />
-          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 200px' } }}>
+          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}>
             <InputLabel>Type</InputLabel>
             <Select
               name="type"
@@ -333,7 +333,7 @@ function Expenses() {
               <MenuItem value="expense">Expense</MenuItem>
             </Select>
           </FormControl>
-          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 200px' } }}>
+          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}>
             <InputLabel>Category</InputLabel>
             <Select
               name="category"
@@ -356,7 +356,7 @@ function Expenses() {
               slotProps={{
                 textField: {
                   required: true,
-                  sx: { flex: { xs: '1 1 100%', sm: '1 1 200px' } },
+                  sx: { flex: { xs: '1 1 100%', sm: '1 1 180px' } },
                   variant: 'outlined',
                 },
               }}
@@ -403,6 +403,17 @@ function Expenses() {
 
       {/* Transactions Table */}
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        <Typography
+          variant="h5"
+          sx={{
+            color: '#1976d2',
+            fontWeight: 'bold',
+            mb: 2,
+            textAlign: 'center',
+          }}
+        >
+          Recent Transactions
+        </Typography>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
