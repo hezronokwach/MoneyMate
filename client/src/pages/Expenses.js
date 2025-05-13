@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -97,12 +98,59 @@ function Expenses() {
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    // If type changes, reset category to ensure it matches the new type
+    if (name === 'type') {
+      setFormData({ ...formData, [name]: value, category: '' });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   // Handle date change
   const handleDateChange = (date) => {
     setFormData({ ...formData, date });
+  };
+
+  // Validate savings transaction
+  const validateSavingsTransaction = (formData) => {
+    // Only validate for new savings transactions with positive amounts
+    if (formData.type === 'savings' && parseFloat(formData.amount) > 0) {
+      // If editing an existing transaction, we need to account for the original amount
+      let additionalSavings = parseFloat(formData.amount);
+      
+      if (editId) {
+        // Find the original transaction
+        const originalTransaction = transactions.find(t => t.id === editId);
+        if (originalTransaction && originalTransaction.type === 'savings') {
+          // Only count the difference as additional savings
+          additionalSavings = parseFloat(formData.amount) - originalTransaction.amount;
+        }
+      }
+      
+      // Only validate if there's an increase in savings
+      if (additionalSavings > 0) {
+        // Calculate available balance
+        const availableBalance = summary.totalIncome - 
+                                summary.totalExpense - 
+                                summary.totalSavings;
+        
+        // For editing, add back the original savings amount if it was a savings transaction
+        const adjustedBalance = editId && transactions.find(t => t.id === editId)?.type === 'savings' 
+          ? availableBalance + transactions.find(t => t.id === editId).amount 
+          : availableBalance;
+        
+        // Check if this savings transaction would create a negative balance
+        if (adjustedBalance < additionalSavings) {
+          return {
+            isValid: false,
+            errorMessage: `Not enough funds available. You have $${adjustedBalance.toFixed(2)} available, but are trying to save $${additionalSavings.toFixed(2)}.`
+          };
+        }
+      }
+    }
+    
+    return { isValid: true };
   };
 
   // Validate and submit form
@@ -125,6 +173,13 @@ function Expenses() {
     }
     if (!formData.date) {
       setError('Date is required');
+      return;
+    }
+
+    // Validate savings transaction
+    const savingsValidation = validateSavingsTransaction(formData);
+    if (!savingsValidation.isValid) {
+      setError(savingsValidation.errorMessage);
       return;
     }
 
@@ -195,6 +250,14 @@ function Expenses() {
     });
     setEditId(null);
   };
+
+  // Filter categories based on selected type
+  const filteredCategories = categories.filter(cat => 
+    formData.type === 'income' ? cat.type === 'income' : 
+    formData.type === 'expense' ? cat.type === 'expense' : 
+    formData.type === 'savings' ? cat.type === 'savings' : 
+    true
+  );
 
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1400, mx: 'auto', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
@@ -365,12 +428,12 @@ function Expenses() {
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              required={formData.type === 'expense' || formData.type === 'savings'}
-              disabled={formData.type === 'income'}
+              required={formData.type !== ''}
+              disabled={!formData.type}
             >
-              {categories.map((cat) => (
+              {filteredCategories.map((cat) => (
                 <MenuItem key={cat.id} value={cat.name}>
-                  {cat.name} ({cat.type})
+                  {cat.name}
                 </MenuItem>
               ))}
             </Select>

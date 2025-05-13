@@ -217,7 +217,7 @@ router.post('/:id/achieve', auth, (req, res) => {
                   db.run(
                     `INSERT INTO transactions (user_id, amount, date, description, type, category)
                      VALUES (?, ?, ?, ?, 'savings', 'Savings')`,
-                    [req.user.id, -goal.target_amount, today, `Used savings for: ${goal.name}`, 'savings'],
+                    [req.user.id, -goal.target_amount, today, `Used savings for: ${goal.name}`],
                     function(err) {
                       if (err) {
                         console.error('Database error creating negative savings transaction:', err);
