@@ -212,88 +212,104 @@ function Reports() {
   };
   
   // Render spending by category chart
-  const renderCategorySpendingChart = () => {
-    console.log('Rendering category spending chart with data:', categorySpending);
-    
-    return (
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2, color: '#1976d2' }}>
-          Spending by Category
+  
+// Render spending by category chart
+const renderCategorySpendingChart = () => {
+  console.log('Rendering category spending chart with data:', categorySpending);
+  
+  return (
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h6" sx={{ mb: 2, color: '#1976d2' }}>
+        Spending by Category
+      </Typography>
+      
+      {!categorySpending.categories || categorySpending.categories.length === 0 ? (
+        <Typography variant="body1" sx={{ textAlign: 'center', my: 4, color: 'text.secondary' }}>
+          No expense data available for the selected period.
         </Typography>
-        
-        {!categorySpending.categories || categorySpending.categories.length === 0 ? (
-          <Typography variant="body1" sx={{ textAlign: 'center', my: 4, color: 'text.secondary' }}>
-            No expense data available for the selected period.
-          </Typography>
-        ) : (
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ 
-                height: 400, 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center',
-                border: '1px solid #e0e0e0',
-                borderRadius: 2,
-                p: 2
-              }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={categorySpending.categories}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={true}
-                      label={({cx, cy, midAngle, innerRadius, outerRadius, percent, index}) => {
-                        const category = categorySpending.categories[index].category;
-                        return `${category}: ${(percent * 100).toFixed(0)}%`;
-                      }}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="amount"
-                    >
-                      {categorySpending.categories.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`Ksh. ${value.toFixed(2)}`, 'Amount']} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#e3f2fd' }}>Category</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#e3f2fd' }}>Amount</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#e3f2fd' }}>Percentage</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {categorySpending.categories.map((category) => (
-                      <TableRow key={category.category}>
-                        <TableCell>{category.category}</TableCell>
-                        <TableCell>Ksh. {category.amount.toFixed(2)}</TableCell>
-                        <TableCell>{category.percentage}%</TableCell>
-                      </TableRow>
+      ) : (
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Box sx={{ 
+              height: 400, 
+              width: '100%',
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              border: '1px solid #e0e0e0',
+              borderRadius: 2,
+              p: 2,
+              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)'
+            }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                  <Pie
+                    data={categorySpending.categories}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={true}
+                    label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={120}
+                    fill="#8884d8"
+                    dataKey="amount"
+                    nameKey="category"
+                    paddingAngle={2}
+                  >
+                    {categorySpending.categories.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
-                    <TableRow sx={{ bgcolor: '#f5f5f5' }}>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Total</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>Ksh. {categorySpending.totalExpenses.toFixed(2)}</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold' }}>100%</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value) => [`Ksh. ${value.toFixed(2)}`, 'Amount']}
+                    labelFormatter={(name) => `Category: ${name}`}
+                  />
+                  <Legend 
+                    layout="horizontal" 
+                    verticalAlign="bottom" 
+                    align="center"
+                    wrapperStyle={{ paddingTop: 20 }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </Box>
           </Grid>
-        )}
-      </Box>
-    );
-  };
+          <Grid item xs={12} md={6}>
+            <TableContainer component={Paper} sx={{ 
+              maxHeight: 400, 
+              overflow: 'auto',
+              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)'
+            }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#e3f2fd' }}>Category</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#e3f2fd' }}>Amount</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#e3f2fd' }}>Percentage</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {categorySpending.categories.map((category) => (
+                    <TableRow key={category.category}>
+                      <TableCell>{category.category}</TableCell>
+                      <TableCell>Ksh. {category.amount.toFixed(2)}</TableCell>
+                      <TableCell>{category.percentage}%</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow sx={{ bgcolor: '#f5f5f5' }}>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Total</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Ksh. {categorySpending.totalExpenses.toFixed(2)}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>100%</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+        </Grid>
+      )}
+    </Box>
+  );
+};
+
   
   // Render monthly spending chart
   const renderMonthlySpendingChart = () => {
