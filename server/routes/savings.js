@@ -196,10 +196,10 @@ router.post('/:id/achieve', auth, (req, res) => {
                 return res.status(500).json({ message: 'Server error marking goal as achieved' });
               }
 
-              // 2. Create an expense transaction for the target amount (not all savings)
               const today = new Date().toISOString().split('T')[0];
               const goalDesc = description || `Spent savings for: ${goal.name}`;
               
+              // 2. Create an expense transaction for the target amount
               db.run(
                 `INSERT INTO transactions (user_id, amount, date, description, type, category)
                  VALUES (?, ?, ?, ?, 'expense', ?)`,
@@ -211,25 +211,42 @@ router.post('/:id/achieve', auth, (req, res) => {
                     return res.status(500).json({ message: 'Server error creating expense transaction' });
                   }
                   
-                  // Commit the transaction
-                  db.run('COMMIT', (err) => {
-                    if (err) {
-                      console.error('Database error committing transaction:', err);
-                      db.run('ROLLBACK');
-                      return res.status(500).json({ message: 'Server error completing the operation' });
+                  const expenseTransactionId = this.lastID;
+                  
+                  // 3. Create a negative savings transaction to reduce the savings balance
+                  db.run(
+                    `INSERT INTO transactions (user_id, amount, date, description, type, category)
+                     VALUES (?, ?, ?, ?, 'savings', 'Savings')`,
+                    [req.user.id, -goal.target_amount, today, `Used savings for: ${goal.name}`, 'savings'],
+                    function(err) {
+                      if (err) {
+                        console.error('Database error creating negative savings transaction:', err);
+                        db.run('ROLLBACK');
+                        return res.status(500).json({ message: 'Server error updating savings balance' });
+                      }
+                      
+                      // Commit the transaction
+                      db.run('COMMIT', (err) => {
+                        if (err) {
+                          console.error('Database error committing transaction:', err);
+                          db.run('ROLLBACK');
+                          return res.status(500).json({ message: 'Server error completing the operation' });
+                        }
+                        
+                        // Calculate remaining savings after achieving the goal
+                        const remainingSavings = goal.current_savings - goal.target_amount;
+                        
+                        res.json({ 
+                          message: 'Goal marked as achieved and expense recorded',
+                          goal_id: goalId,
+                          expense_amount: goal.target_amount,
+                          remaining_savings: remainingSavings,
+                          expense_transaction_id: expenseTransactionId,
+                          savings_transaction_id: this.lastID
+                        });
+                      });
                     }
-                    
-                    // Calculate remaining savings after achieving the goal
-                    const remainingSavings = goal.current_savings - goal.target_amount;
-                    
-                    res.json({ 
-                      message: 'Goal marked as achieved and expense recorded',
-                      goal_id: goalId,
-                      expense_amount: goal.target_amount,
-                      remaining_savings: remainingSavings,
-                      transaction_id: this.lastID
-                    });
-                  });
+                  );
                 }
               );
             }
