@@ -20,8 +20,11 @@ const seedCategories = (userId, callback) => {
     { name: 'Clothing', type: 'expense' },
     { name: 'Upkeep', type: 'income' },
     { name: 'Side-Hustle', type: 'income' },
-    { name: 'Other', type: 'expenses' },
-
+    { name: 'Other', type: 'expense' },
+    { name: 'Luxury', type: 'expense' },
+    { name: 'Electronics', type: 'expense' },
+    { name: 'Education', type: 'expense' },
+    { name: 'Savings', type: 'savings' },
   ];
 
   // Check if user already has categories
@@ -137,6 +140,7 @@ db.serialize(() => {
       name TEXT,
       target_amount REAL,
       deadline TEXT,
+      achieved INTEGER DEFAULT 0,
       FOREIGN KEY(user_id) REFERENCES users(id)
     )`,
     (err) => {

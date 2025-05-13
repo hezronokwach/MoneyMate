@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -53,14 +54,16 @@ function Expenses() {
     (acc, t) => {
       if (t.type === 'income') {
         acc.totalIncome += t.amount;
-      } else {
+      } else if (t.type === 'expense') {
         acc.totalExpense += t.amount;
+      } else if (t.type === 'savings') {
+        acc.totalSavings += t.amount;
       }
       return acc;
     },
-    { totalIncome: 0, totalExpense: 0 }
+    { totalIncome: 0, totalExpense: 0, totalSavings: 0 }
   );
-  summary.netBalance = summary.totalIncome - summary.totalExpense;
+  summary.netBalance = summary.totalIncome - summary.totalExpense - summary.totalSavings;
 
   // Fetch transactions and categories on mount
   useEffect(() => {
@@ -95,12 +98,59 @@ function Expenses() {
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    // If type changes, reset category to ensure it matches the new type
+    if (name === 'type') {
+      setFormData({ ...formData, [name]: value, category: '' });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   // Handle date change
   const handleDateChange = (date) => {
     setFormData({ ...formData, date });
+  };
+
+  // Validate savings transaction
+  const validateSavingsTransaction = (formData) => {
+    // Only validate for new savings transactions with positive amounts
+    if (formData.type === 'savings' && parseFloat(formData.amount) > 0) {
+      // If editing an existing transaction, we need to account for the original amount
+      let additionalSavings = parseFloat(formData.amount);
+      
+      if (editId) {
+        // Find the original transaction
+        const originalTransaction = transactions.find(t => t.id === editId);
+        if (originalTransaction && originalTransaction.type === 'savings') {
+          // Only count the difference as additional savings
+          additionalSavings = parseFloat(formData.amount) - originalTransaction.amount;
+        }
+      }
+      
+      // Only validate if there's an increase in savings
+      if (additionalSavings > 0) {
+        // Calculate available balance
+        const availableBalance = summary.totalIncome - 
+                                summary.totalExpense - 
+                                summary.totalSavings;
+        
+        // For editing, add back the original savings amount if it was a savings transaction
+        const adjustedBalance = editId && transactions.find(t => t.id === editId)?.type === 'savings' 
+          ? availableBalance + transactions.find(t => t.id === editId).amount 
+          : availableBalance;
+        
+        // Check if this savings transaction would create a negative balance
+        if (adjustedBalance < additionalSavings) {
+          return {
+            isValid: false,
+            errorMessage: `Not enough funds available. You have $${adjustedBalance.toFixed(2)} available, but are trying to save $${additionalSavings.toFixed(2)}.`
+          };
+        }
+      }
+    }
+    
+    return { isValid: true };
   };
 
   // Validate and submit form
@@ -117,12 +167,19 @@ function Expenses() {
       setError('Type is required');
       return;
     }
-    if (!formData.category) {
-      setError('Category is required');
+    if (!formData.category && (formData.type === 'expense' || formData.type === 'savings')) {
+      setError('Category is required for expenses and savings');
       return;
     }
     if (!formData.date) {
       setError('Date is required');
+      return;
+    }
+
+    // Validate savings transaction
+    const savingsValidation = validateSavingsTransaction(formData);
+    if (!savingsValidation.isValid) {
+      setError(savingsValidation.errorMessage);
       return;
     }
 
@@ -194,6 +251,14 @@ function Expenses() {
     setEditId(null);
   };
 
+  // Filter categories based on selected type
+  const filteredCategories = categories.filter(cat => 
+    formData.type === 'income' ? cat.type === 'income' : 
+    formData.type === 'expense' ? cat.type === 'expense' : 
+    formData.type === 'savings' ? cat.type === 'savings' : 
+    true
+  );
+
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1400, mx: 'auto', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       {/* Header */}
@@ -211,80 +276,134 @@ function Expenses() {
       </Typography>
 
       {/* Summary Statistics */}
-      <Grid
-        container
-        spacing={0.5} // Reduced spacing between cards
+      <Box
         sx={{
-          maxWidth: 900, // Slightly reduced max width
+          maxWidth: 1000,
           mx: 'auto',
           mb: 4,
-          justifyContent: 'center', // Center the cards
+          p: 3,
+          bgcolor: '#ffffff',
+          borderRadius: 2,
+          boxShadow: 2
         }}
       >
-        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
-          <Card
+        <Typography
+          variant="h6"
+          sx={{
+            color: '#1976d2',
+            mb: 3,
+            fontWeight: 'medium',
+            textAlign: 'center'
+          }}
+        >
+          Financial Summary
+        </Typography>
+
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 2 }}>
+          {/* Total Income */}
+          <Box
             sx={{
-              boxShadow: 3,
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#e3f2fd',
               borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Total Income
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                ${summary.totalIncome.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
-          <Card
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Total Income
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+              ${summary.totalIncome.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Money you've earned
+            </Typography>
+          </Box>
+
+          {/* Total Expenses */}
+          <Box
             sx={{
-              boxShadow: 3,
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#ffebee',
               borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Total Expenses
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                ${summary.totalExpense.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
-          <Card
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Total Expenses
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#f44336' }}>
+              ${summary.totalExpense.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Money you've spent
+            </Typography>
+          </Box>
+
+          {/* Total Savings */}
+          <Box
             sx={{
-              boxShadow: 3,
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#e8f5e9',
               borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Net Balance
-              </Typography>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 'bold',
-                  color: summary.netBalance >= 0 ? 'green' : 'red',
-                }}
-              >
-                ${summary.netBalance.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Total Savings
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+              ${summary.totalSavings.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Money you've set aside
+            </Typography>
+          </Box>
+
+          {/* Net Balance */}
+          <Box
+            sx={{
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#f3e5f5',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Net Balance
+            </Typography>
+            <Typography variant="h4" sx={{ 
+              fontWeight: 'bold', 
+              color: summary.netBalance >= 0 ? '#9c27b0' : '#f44336' 
+            }}>
+              ${summary.netBalance.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Available to spend
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
 
       {/* Error Message */}
       {error && (
@@ -331,6 +450,7 @@ function Expenses() {
             >
               <MenuItem value="income">Income</MenuItem>
               <MenuItem value="expense">Expense</MenuItem>
+              <MenuItem value="savings">Savings</MenuItem>
             </Select>
           </FormControl>
           <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}>
@@ -339,11 +459,12 @@ function Expenses() {
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              required
+              required={formData.type !== ''}
+              disabled={!formData.type}
             >
-              {categories.map((cat) => (
+              {filteredCategories.map((cat) => (
                 <MenuItem key={cat.id} value={cat.name}>
-                  {cat.name} ({cat.type})
+                  {cat.name}
                 </MenuItem>
               ))}
             </Select>
@@ -443,7 +564,14 @@ function Expenses() {
                     }}
                   >
                     <TableCell>${transaction.amount.toFixed(2)}</TableCell>
-                    <TableCell>{transaction.type}</TableCell>
+                    <TableCell>
+                      <span style={{ 
+                        color: transaction.type === 'income' ? 'green' : 
+                               transaction.type === 'savings' ? 'blue' : 'red' 
+                      }}>
+                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                      </span>
+                    </TableCell>
                     <TableCell>{transaction.category}</TableCell>
                     <TableCell>{transaction.date}</TableCell>
                     <TableCell>{transaction.description || '-'}</TableCell>

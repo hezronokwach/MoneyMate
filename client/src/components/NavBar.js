@@ -31,6 +31,7 @@ function NavBar() {
     { text: 'Dashboard', path: '/' },
     { text: 'Expenses', path: '/expenses' },
     { text: 'Budget', path: '/budget' },
+    { text: 'Savings', path: '/savings' },
     { text: 'Reports', path: '/reports' },
     { text: 'Help', path: '/help' },
   ];

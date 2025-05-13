@@ -15,27 +15,69 @@ router.post('/', auth, async (req, res) => {
   if (typeof amount !== 'number' || amount <= 0) {
     return res.status(400).json({ message: 'Amount must be a positive number' });
   }
-  if (!['income', 'expense'].includes(type)) {
-    return res.status(400).json({ message: 'Type must be income or expense' });
+  if (!['income', 'expense', 'savings'].includes(type)) {
+    return res.status(400).json({ message: 'Type must be income, expense, or savings' });
+  }
+  
+  // For expenses and savings, category is required
+  if ((type === 'expense' || type === 'savings') && !category) {
+    return res.status(400).json({ message: 'Category is required for expense and savings transactions' });
   }
 
   try {
-    // Use the database connection directly since it's already initialized
-    db.run(
-      `INSERT INTO transactions (user_id, amount, type, category, date, description)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [req.user.id, amount, type, category, date, description || ''],
-      function(err) {
-        if (err) {
-          console.error('Database error:', err);
-          return res.status(500).json({ message: 'Server error in transaction' });
+    // For savings transactions, check if there's enough available balance
+    if (type === 'savings' && amount > 0) {
+      // Get current balance
+      db.get(
+        `SELECT 
+          COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
+          COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) -
+          COALESCE(SUM(CASE WHEN type = 'savings' THEN amount ELSE 0 END), 0) as available_balance
+        FROM transactions
+        WHERE user_id = ?`,
+        [req.user.id],
+        (err, result) => {
+          if (err) {
+            console.error('Database error checking balance:', err);
+            return res.status(500).json({ message: 'Server error checking available balance' });
+          }
+          
+          const availableBalance = result ? result.available_balance : 0;
+          
+          // Check if this savings transaction would create a negative balance
+          if (availableBalance < amount) {
+            return res.status(400).json({ 
+              message: `Not enough funds available. You have $${availableBalance.toFixed(2)} available, but are trying to save $${amount.toFixed(2)}.`
+            });
+          }
+          
+          // If there's enough balance, proceed with creating the transaction
+          insertTransaction();
         }
-        res.status(201).json({ 
-          message: 'Transaction created successfully',
-          transactionId: this.lastID 
-        });
-      }
-    );
+      );
+    } else {
+      // For non-savings transactions or negative savings adjustments, proceed as normal
+      insertTransaction();
+    }
+
+    // Function to insert the transaction into the database
+    function insertTransaction() {
+      db.run(
+        `INSERT INTO transactions (user_id, amount, type, category, date, description)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [req.user.id, amount, type, category, date, description || ''],
+        function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Server error in transaction' });
+          }
+          res.status(201).json({ 
+            message: 'Transaction created successfully',
+            transactionId: this.lastID 
+          });
+        }
+      );
+    }
   } catch (error) {
     console.error('Server error:', error);
     res.status(500).json({ message: 'Server error in transaction' });
@@ -45,20 +87,61 @@ router.post('/', auth, async (req, res) => {
 // GET /api/transactions - Retrieve all transactions for the user
 router.get('/', auth, (req, res) => {
   try {
+    const { type } = req.query;
+    
+    let query = `SELECT * FROM transactions WHERE user_id = ?`;
+    let params = [req.user.id];
+    
+    // Add type filter if provided
+    if (type) {
+      query += ` AND type = ?`;
+      params.push(type);
+    }
+    
+    // Add order by date desc
+    query += ` ORDER BY date DESC`;
+    
+    db.all(query, params, (err, transactions) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Server error getting transactions' });
+      }
+      res.json(transactions);
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ message: 'Server error getting transactions' });
+  }
+});
+
+// GET /api/transactions/summary - Get summary of transactions
+router.get('/summary', auth, (req, res) => {
+  try {
     db.all(
-      `SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC`,
+      `SELECT 
+        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
+        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expenses,
+        COALESCE(SUM(CASE WHEN type = 'savings' THEN amount ELSE 0 END), 0) as total_savings
+       FROM transactions
+       WHERE user_id = ?`,
       [req.user.id],
-      (err, transactions) => {
+      (err, results) => {
         if (err) {
           console.error('Database error:', err);
-          return res.status(500).json({ message: 'Server error getting transactions' });
+          return res.status(500).json({ message: 'Server error fetching transaction summary' });
         }
-        res.json(transactions);
+        
+        const summary = results[0] || { total_income: 0, total_expenses: 0, total_savings: 0 };
+        
+        // Calculate net balance (income - expenses - savings)
+        summary.net_balance = summary.total_income - summary.total_expenses - summary.total_savings;
+        
+        res.json(summary);
       }
     );
   } catch (error) {
     console.error('Server error:', error);
-    res.status(500).json({ message: 'Server error getting transactions' });
+    res.status(500).json({ message: 'Server error fetching transaction summary' });
   }
 });
 
@@ -74,8 +157,13 @@ router.put('/:id', auth, (req, res) => {
   if (typeof amount !== 'number' || amount <= 0) {
     return res.status(400).json({ message: 'Amount must be a positive number' });
   }
-  if (!['income', 'expense'].includes(type)) {
-    return res.status(400).json({ message: 'Type must be income or expense' });
+  if (!['income', 'expense', 'savings'].includes(type)) {
+    return res.status(400).json({ message: 'Type must be income, expense, or savings' });
+  }
+  
+  // For expenses and savings, category is required
+  if ((type === 'expense' || type === 'savings') && !category) {
+    return res.status(400).json({ message: 'Category is required for expense and savings transactions' });
   }
 
   try {
@@ -93,20 +181,69 @@ router.put('/:id', auth, (req, res) => {
           return res.status(404).json({ message: 'Transaction not found' });
         }
         
-        // Update the transaction
-        db.run(
-          `UPDATE transactions
-           SET amount = ?, type = ?, category = ?, date = ?, description = ?
-           WHERE id = ? AND user_id = ?`,
-          [amount, type, category, date, description || '', id, req.user.id],
-          function(err) {
-            if (err) {
-              console.error('Database error:', err);
-              return res.status(500).json({ message: 'Server error updating transaction' });
-            }
-            res.json({ message: 'Transaction updated successfully' });
+        // Check if this is a new savings transaction or an increased savings amount
+        if (type === 'savings' && (transaction.type !== 'savings' || amount > transaction.amount)) {
+          // Calculate the additional savings amount
+          const additionalSavings = transaction.type === 'savings' 
+            ? amount - transaction.amount 
+            : amount;
+          
+          // Only validate if there's an increase in savings
+          if (additionalSavings > 0) {
+            // Get current balance excluding this transaction
+            db.get(
+              `SELECT 
+                COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
+                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) -
+                COALESCE(SUM(CASE WHEN type = 'savings' THEN amount ELSE 0 END), 0) +
+                CASE WHEN ? = 'savings' THEN ? ELSE 0 END as available_balance
+              FROM transactions
+              WHERE user_id = ? AND id != ?`,
+              [transaction.type, transaction.amount, req.user.id, id],
+              (err, result) => {
+                if (err) {
+                  console.error('Database error checking balance:', err);
+                  return res.status(500).json({ message: 'Server error checking available balance' });
+                }
+                
+                const availableBalance = result ? result.available_balance : 0;
+                
+                // Check if this savings transaction would create a negative balance
+                if (availableBalance < additionalSavings) {
+                  return res.status(400).json({ 
+                    message: `Not enough funds available. You have $${availableBalance.toFixed(2)} available, but are trying to save an additional $${additionalSavings.toFixed(2)}.`
+                  });
+                }
+                
+                // If there's enough balance, proceed with updating the transaction
+                updateTransaction();
+              }
+            );
+          } else {
+            // No increase in savings, proceed with update
+            updateTransaction();
           }
-        );
+        } else {
+          // Not a savings transaction or not increasing savings amount
+          updateTransaction();
+        }
+        
+        // Function to update the transaction
+        function updateTransaction() {
+          db.run(
+            `UPDATE transactions
+             SET amount = ?, type = ?, category = ?, date = ?, description = ?
+             WHERE id = ? AND user_id = ?`,
+            [amount, type, category, date, description || '', id, req.user.id],
+            function(err) {
+              if (err) {
+                console.error('Database error:', err);
+                return res.status(500).json({ message: 'Server error updating transaction' });
+              }
+              res.json({ message: 'Transaction updated successfully' });
+            }
+          );
+        }
       }
     );
   } catch (error) {
