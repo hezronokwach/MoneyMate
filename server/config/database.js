@@ -20,7 +20,7 @@ const seedCategories = (userId, callback) => {
     { name: 'Clothing', type: 'expense' },
     { name: 'Upkeep', type: 'income' },
     { name: 'Side-Hustle', type: 'income' },
-    { name: 'Other', type: 'expenses' },
+    { name: 'Other', type: 'expense' },
     { name: 'Savings', type: 'savings' },
 
 
@@ -139,6 +139,7 @@ db.serialize(() => {
       name TEXT,
       target_amount REAL,
       deadline TEXT,
+      achieved INTEGER DEFAULT 0,
       FOREIGN KEY(user_id) REFERENCES users(id)
     )`,
     (err) => {
