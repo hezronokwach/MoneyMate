@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { token } = await api.post('/auth/login', { username, password });
       localStorage.setItem('token', token);
-      setUser({ token });
+      setUser({ token, username });  // Store both token and username
       navigate('/');
     } catch (error) {
       throw error.message || 'Login failed';

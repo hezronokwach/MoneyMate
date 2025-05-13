@@ -250,7 +250,7 @@ function Dashboard() {
         <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' } }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-              Welcome back, {user?.name || 'User'}!
+              Welcome back, {user?.username || 'User'}!
             </Typography>
             <Typography variant="subtitle1" color="text.secondary">
               Here's your financial overview for {dayjs().format('MMMM YYYY')}
@@ -386,241 +386,256 @@ function Dashboard() {
         </Paper>
         
         {/* Main Dashboard Content */}
-        <Grid container spacing={4}>
-          {/* Budget Overview */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 2, height: '100%', overflow: 'hidden' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-                  Budget Overview
-                </Typography>
-                <Button 
-                  size="small" 
-                  endIcon={<ArrowForwardIcon />}
-                  onClick={() => navigateTo('/budget')}
-                >
-                  View All
-                </Button>
-              </Box>
-              
-              {budgets.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    No budgets set up yet. Create your first budget to track your spending.
+        <Box sx={{ mb: 4 }}>
+          <Grid container spacing={4} justifyContent="center">
+            {/* Budget Overview */}
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2, height: '100%', overflow: 'hidden' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+                    Budget Overview
                   </Typography>
                   <Button 
-                    variant="contained" 
-                    startIcon={<AddIcon />}
+                    size="small" 
+                    endIcon={<ArrowForwardIcon />}
                     onClick={() => navigateTo('/budget')}
                   >
-                    Create Budget
+                    View All
                   </Button>
                 </Box>
-              ) : (
-                <TableContainer sx={{ maxHeight: 300, overflowY: 'auto' }}>
-                  <Table size="small" stickyHeader>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Category</TableCell>
-                        <TableCell align="right">Budget</TableCell>
-                        <TableCell align="right">Spent</TableCell>
-                        <TableCell align="right">Status</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {budgets.map((budget) => {
-                        const amount = parseFloat(budget.amount) || 0;
-                        const spent = parseFloat(budget.spent) || 0;
-                        const percentUsed = amount > 0 ? Math.round((spent / amount) * 100) : 0;
-                        const isOverBudget = spent > amount;
-                        
-                        return (
-                          <TableRow key={budget.id}>
-                            <TableCell>{budget.category}</TableCell>
-                            <TableCell align="right">{formatCurrency(amount)}</TableCell>
-                            <TableCell align="right">{formatCurrency(spent)}</TableCell>
-                            <TableCell align="right">
-                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-                                <Typography variant="body2" sx={{ mr: 1 }}>
-                                  {percentUsed}%
-                                </Typography>
-                                <Chip 
-                                  size="small"
-                                  label={isOverBudget ? 'Over' : 'Under'}
-                                  color={isOverBudget ? 'error' : 'success'}
-                                  sx={{ minWidth: 60 }}
-                                />
-                              </Box>
-                              <LinearProgress 
-                                variant="determinate" 
-                                value={Math.min(percentUsed, 100)}
-                                color={isOverBudget ? 'error' : 'success'}
-                                sx={{ mt: 0.5, height: 4, borderRadius: 2 }}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </Paper>
-          </Grid>
-          
-          {/* Recent Transactions */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 2, height: '100%', overflow: 'hidden' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-                  Recent Transactions
-                </Typography>
-                <Button 
-                  size="small" 
-                  endIcon={<ArrowForwardIcon />}
-                  onClick={() => navigateTo('/expenses')}
-                >
-                  View All
-                </Button>
-              </Box>
-              
-              {recentTransactions.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    No transactions recorded yet. Add your first transaction to get started.
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    startIcon={<AddIcon />}
-                    onClick={() => navigateTo('/expenses')}
-                  >
-                    Add Transaction
-                  </Button>
-                </Box>
-              ) : (
-                <TableContainer sx={{ maxHeight: 300, overflowY: 'auto' }}>
-                  <Table size="small" stickyHeader>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Category</TableCell>
-                        <TableCell align="right">Amount</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {recentTransactions.map((transaction) => (
-                        <TableRow key={transaction.id}>
-                          <TableCell>{formatDate(transaction.date)}</TableCell>
-                          <TableCell>{transaction.description}</TableCell>
-                          <TableCell>
-                            <Chip 
-                              size="small" 
-                              label={transaction.category}
-                              color={transaction.type === 'income' ? 'success' : 'default'}
-                            />
-                          </TableCell>
-                          <TableCell 
-                            align="right"
-                            sx={{ 
-                              color: transaction.type === 'income' ? '#4caf50' : '#f44336',
-                              fontWeight: 'medium'
-                            }}
-                          >
-                            {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
-                          </TableCell>
+                
+                {budgets.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                      No budgets set up yet. Create your first budget to track your spending.
+                    </Typography>
+                    <Button 
+                      variant="contained" 
+                      startIcon={<AddIcon />}
+                      onClick={() => navigateTo('/budget')}
+                    >
+                      Create Budget
+                    </Button>
+                  </Box>
+                ) : (
+                  <TableContainer sx={{ maxHeight: 300, overflowY: 'auto' }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Category</TableCell>
+                          <TableCell align="right">Budget</TableCell>
+                          <TableCell align="right">Spent</TableCell>
+                          <TableCell align="right">Status</TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </Paper>
-          </Grid>
-          
-          {/* Savings Goals */}
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2, overflow: 'hidden' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-                  Savings Goals
-                </Typography>
-                <Button 
-                  size="small" 
-                  endIcon={<ArrowForwardIcon />}
-                  onClick={() => navigateTo('/savings')}
-                >
-                  View All
-                </Button>
-              </Box>
-              
-              {savingsGoals.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    No savings goals yet. Set a goal to start tracking your progress.
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    startIcon={<AddIcon />}
-                    onClick={() => navigateTo('/savings')}
-                  >
-                    Create Savings Goal
-                  </Button>
-                </Box>
-              ) : (
-                <Box sx={{ overflowX: 'auto' }}>
-                  <Grid container spacing={2}>
-                    {savingsGoals.map((goal) => {
-                      const targetAmount = parseFloat(goal.target_amount) || 0;
-                      const currentAmount = parseFloat(goal.current_savings) || 0;
-                      const progress = targetAmount > 0 ? Math.round((currentAmount / targetAmount) * 100) : 0;
-                      
-                      return (
-                        <Grid item xs={12} sm={6} md={4} key={goal.id}>
-                          <Card sx={{ height: '100%' }}>
-                            <CardContent>
-                              <Typography variant="h6" sx={{ mb: 1 }}>
-                                {goal.name}
-                              </Typography>
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                <Typography variant="body2" color="text.secondary">
-                                  Target: {formatCurrency(targetAmount)}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                  {formatDate(goal.deadline)}
-                                </Typography>
-                              </Box>
-                              <Box sx={{ mb: 1 }}>
+                      </TableHead>
+                      <TableBody>
+                        {budgets.map((budget) => {
+                          const amount = parseFloat(budget.amount) || 0;
+                          const spent = parseFloat(budget.spent) || 0;
+                          const percentUsed = amount > 0 ? Math.round((spent / amount) * 100) : 0;
+                          const isOverBudget = spent > amount;
+                          
+                          return (
+                            <TableRow key={budget.id}>
+                              <TableCell>{budget.category}</TableCell>
+                              <TableCell align="right">{formatCurrency(amount)}</TableCell>
+                              <TableCell align="right">{formatCurrency(spent)}</TableCell>
+                              <TableCell align="right">
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                  <Typography variant="body2" sx={{ mr: 1 }}>
+                                    {percentUsed}%
+                                  </Typography>
+                                  <Chip 
+                                    size="small"
+                                    label={isOverBudget ? 'Over' : 'Under'}
+                                    color={isOverBudget ? 'error' : 'success'}
+                                    sx={{ minWidth: 60 }}
+                                  />
+                                </Box>
                                 <LinearProgress 
                                   variant="determinate" 
-                                  value={Math.min(progress, 100)}
-                                  sx={{ height: 8, borderRadius: 4 }}
+                                  value={Math.min(percentUsed, 100)}
+                                  color={isOverBudget ? 'error' : 'success'}
+                                  sx={{ mt: 0.5, height: 4, borderRadius: 2 }}
                                 />
-                              </Box>
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography variant="body2">
-                                  {formatCurrency(currentAmount)}
-                                </Typography>
-                                <Typography variant="body2" fontWeight="bold">
-                                  {progress}%
-                                </Typography>
-                              </Box>
-                            </CardContent>
-                            <CardActions>
-                              <Button size="small" onClick={() => navigateTo(`/savings/${goal.id}`)}>
-                                View Details
-                              </Button>
-                            </CardActions>
-                          </Card>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </Paper>
+            </Grid>
+            
+            {/* Recent Transactions */}
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 2, height: '100%', overflow: 'hidden' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+                    Recent Transactions
+                  </Typography>
+                  <Button 
+                    size="small" 
+                    endIcon={<ArrowForwardIcon />}
+                    onClick={() => navigateTo('/expenses')}
+                  >
+                    View All
+                  </Button>
                 </Box>
-              )}
-            </Paper>
+                
+                {recentTransactions.length === 0 ? (
+                  <Box sx={{ textAlign: 'center', py: 4 }}>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                      No transactions recorded yet. Add your first transaction to get started.
+                    </Typography>
+                    <Button 
+                      variant="contained" 
+                      startIcon={<AddIcon />}
+                      onClick={() => navigateTo('/expenses')}
+                    >
+                      Add Transaction
+                    </Button>
+                  </Box>
+                ) : (
+                  <TableContainer sx={{ maxHeight: 300, overflowY: 'auto' }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Date</TableCell>
+                          <TableCell>Description</TableCell>
+                          <TableCell>Category</TableCell>
+                          <TableCell align="right">Amount</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {recentTransactions.map((transaction) => (
+                          <TableRow key={transaction.id}>
+                            <TableCell>{formatDate(transaction.date)}</TableCell>
+                            <TableCell>{transaction.description}</TableCell>
+                            <TableCell>
+                              <Chip 
+                                size="small" 
+                                label={transaction.category}
+                                color={transaction.type === 'income' ? 'success' : 'default'}
+                              />
+                            </TableCell>
+                            <TableCell 
+                              align="right"
+                              sx={{ 
+                                color: transaction.type === 'income' ? '#4caf50' : '#f44336',
+                                fontWeight: 'medium'
+                              }}
+                            >
+                              {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </Paper>
+            </Grid>
           </Grid>
-        </Grid>
+        </Box>
+        
+        {/* Savings Goals - Now in its own row */}
+        <Box sx={{ mb: 4 }}>
+          <Paper sx={{ p: 2, overflow: 'hidden' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+                Savings Goals
+              </Typography>
+              <Button 
+                size="small" 
+                endIcon={<ArrowForwardIcon />}
+                onClick={() => navigateTo('/savings')}
+              >
+                View All
+              </Button>
+            </Box>
+            
+            {savingsGoals.length === 0 ? (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                  No savings goals yet. Set a goal to start tracking your progress.
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  startIcon={<AddIcon />}
+                  onClick={() => navigateTo('/savings')}
+                >
+                  Create Savings Goal
+                </Button>
+              </Box>
+            ) : (
+              <Box sx={{ overflowX: 'auto' }}>
+                <Grid container spacing={2} justifyContent="center">
+                  {savingsGoals.map((goal) => {
+                    const targetAmount = parseFloat(goal.target_amount) || 0;
+                    const currentAmount = parseFloat(goal.current_savings) || 0;
+                    // Calculate progress but cap at 100% for display purposes
+                    const rawProgress = targetAmount > 0 ? Math.round((currentAmount / targetAmount) * 100) : 0;
+                    const displayProgress = Math.min(rawProgress, 100);
+                    
+                    return (
+                      <Grid item xs={12} sm={6} md={4} key={goal.id}>
+                        <Card sx={{ height: '100%' }}>
+                          <CardContent>
+                            <Typography variant="h6" sx={{ mb: 1 }}>
+                              {goal.name}
+                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                Target: {formatCurrency(targetAmount)}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {formatDate(goal.deadline)}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ mb: 1 }}>
+                              <LinearProgress 
+                                variant="determinate" 
+                                value={displayProgress}
+                                sx={{ 
+                                  height: 8, 
+                                  borderRadius: 4,
+                                  bgcolor: 'rgba(0,0,0,0.1)',
+                                  '& .MuiLinearProgress-bar': {
+                                    bgcolor: rawProgress > 100 ? '#ff9800' : '#4caf50'
+                                  }
+                                }}
+                              />
+                            </Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                              <Typography variant="body2">
+                                {formatCurrency(currentAmount)}
+                              </Typography>
+                              <Typography 
+                                variant="body2" 
+                                fontWeight="bold"
+                                color={rawProgress > 100 ? '#ff9800' : '#4caf50'}
+                              >
+                                {displayProgress}%
+                              </Typography>
+                            </Box>
+                          </CardContent>
+                          <CardActions>
+                            <Button size="small" onClick={() => navigateTo(`/savings/${goal.id}`)}>
+                              View Details
+                            </Button>
+                          </CardActions>
+                        </Card>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
+            )}
+          </Paper>
+        </Box>
         
         {/* Quick Actions */}
         <Box sx={{ mt: 4 }}>
