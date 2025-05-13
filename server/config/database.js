@@ -21,9 +21,10 @@ const seedCategories = (userId, callback) => {
     { name: 'Upkeep', type: 'income' },
     { name: 'Side-Hustle', type: 'income' },
     { name: 'Other', type: 'expense' },
+    { name: 'Luxury', type: 'expense' },
+    { name: 'Electronics', type: 'expense' },
+    { name: 'Education', type: 'expense' },
     { name: 'Savings', type: 'savings' },
-
-
   ];
 
   // Check if user already has categories

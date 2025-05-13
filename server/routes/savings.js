@@ -171,6 +171,16 @@ router.post('/:id/achieve', auth, (req, res) => {
           return res.status(400).json({ message: 'This goal has already been achieved' });
         }
 
+        // Check if there's enough savings to achieve the goal
+        if (goal.current_savings < goal.target_amount) {
+          return res.status(400).json({ 
+            message: `Not enough savings to achieve this goal. You need $${(goal.target_amount - goal.current_savings).toFixed(2)} more.`,
+            current_savings: goal.current_savings,
+            target_amount: goal.target_amount,
+            shortfall: goal.target_amount - goal.current_savings
+          });
+        }
+
         // Begin transaction
         db.serialize(() => {
           db.run('BEGIN TRANSACTION');
@@ -186,14 +196,14 @@ router.post('/:id/achieve', auth, (req, res) => {
                 return res.status(500).json({ message: 'Server error marking goal as achieved' });
               }
 
-              // 2. Create an expense transaction for the amount spent
+              // 2. Create an expense transaction for the target amount (not all savings)
               const today = new Date().toISOString().split('T')[0];
               const goalDesc = description || `Spent savings for: ${goal.name}`;
               
               db.run(
                 `INSERT INTO transactions (user_id, amount, date, description, type, category)
                  VALUES (?, ?, ?, ?, 'expense', ?)`,
-                [req.user.id, goal.current_savings, today, goalDesc, expenseCategory],
+                [req.user.id, goal.target_amount, today, goalDesc, expenseCategory],
                 function(err) {
                   if (err) {
                     console.error('Database error creating expense transaction:', err);
@@ -209,10 +219,14 @@ router.post('/:id/achieve', auth, (req, res) => {
                       return res.status(500).json({ message: 'Server error completing the operation' });
                     }
                     
+                    // Calculate remaining savings after achieving the goal
+                    const remainingSavings = goal.current_savings - goal.target_amount;
+                    
                     res.json({ 
                       message: 'Goal marked as achieved and expense recorded',
                       goal_id: goalId,
-                      expense_amount: goal.current_savings,
+                      expense_amount: goal.target_amount,
+                      remaining_savings: remainingSavings,
                       transaction_id: this.lastID
                     });
                   });

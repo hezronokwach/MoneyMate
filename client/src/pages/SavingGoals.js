@@ -55,6 +55,7 @@ function SavingsGoals() {
     expenseCategory: '',
     description: '',
   });
+  const [achieveError, setAchieveError] = useState('');
 
   // Fetch goals and categories on mount
   useEffect(() => {
@@ -190,6 +191,7 @@ function SavingsGoals() {
       expenseCategory: '',
       description: `Spent savings for: ${goal.name}`,
     });
+    setAchieveError('');
     setAchieveDialogOpen(true);
   };
 
@@ -202,12 +204,13 @@ function SavingsGoals() {
       expenseCategory: '',
       description: '',
     });
+    setAchieveError('');
   };
 
   // Confirm achieve goal
   const handleAchieveGoal = async () => {
     if (!achieveFormData.expenseCategory) {
-      setError('Please select an expense category');
+      setAchieveError('Please select an expense category');
       return;
     }
 
@@ -218,7 +221,13 @@ function SavingsGoals() {
       handleAchieveClose();
       setTimeout(() => setSuccess(''), 2000);
     } catch (err) {
-      setError(err.message || 'Failed to mark goal as achieved');
+      // Check if this is a shortfall error
+      if (err.message && err.message.includes('Not enough savings')) {
+        setAchieveError(err.message);
+      } else {
+        setError(err.message || 'Failed to mark goal as achieved');
+        handleAchieveClose();
+      }
     }
   };
 
@@ -238,6 +247,11 @@ function SavingsGoals() {
     const deadlineDate = dayjs(deadline);
     const daysRemaining = deadlineDate.diff(today, 'day');
     return daysRemaining >= 0 ? daysRemaining : 0;
+  };
+
+  // Check if goal has enough savings to achieve
+  const hasEnoughSavings = (goal) => {
+    return goal.current_savings >= goal.target_amount;
   };
 
   return (
@@ -397,6 +411,7 @@ function SavingsGoals() {
                   const daysRemaining = getDaysRemaining(goal.deadline);
                   const isOverdue = daysRemaining === 0 && progress < 100;
                   const isAchieved = goal.achieved === 1;
+                  const canAchieve = hasEnoughSavings(goal);
                   
                   return (
                     <TableRow
@@ -443,7 +458,7 @@ function SavingsGoals() {
                             size="small"
                             sx={{ fontWeight: 'bold' }}
                           />
-                        ) : progress >= 100 ? (
+                        ) : canAchieve ? (
                           <Chip 
                             label="Ready to Achieve" 
                             color="primary" 
@@ -476,7 +491,7 @@ function SavingsGoals() {
                             >
                               Edit
                             </Button>
-                            {progress > 0 && (
+                            {goal.current_savings > 0 && (
                               <Button
                                 variant="contained"
                                 color="success"
@@ -487,6 +502,8 @@ function SavingsGoals() {
                                   borderRadius: 1,
                                 }}
                                 size="small"
+                                disabled={!canAchieve}
+                                title={!canAchieve ? `Need $${(goal.target_amount - goal.current_savings).toFixed(2)} more` : ''}
                               >
                                 Achieve
                               </Button>
@@ -579,17 +596,25 @@ function SavingsGoals() {
       <Dialog open={achieveDialogOpen} onClose={handleAchieveClose} maxWidth="sm" fullWidth>
         <DialogTitle>Achieve Savings Goal</DialogTitle>
         <DialogContent>
-          <DialogContentText sx={{ mb: 2 }}>
-            You're about to mark "{achieveGoalData?.name}" as achieved. This will:
-          </DialogContentText>
-          <Box component="ul" sx={{ pl: 4, mb: 3 }}>
-            <Typography component="li" variant="body2" sx={{ mb: 1 }}>
-              Create an expense transaction for ${achieveGoalData?.current_savings?.toFixed(2)}
-            </Typography>
-            <Typography component="li" variant="body2">
-              Mark this savings goal as achieved
-            </Typography>
-          </Box>
+          {achieveError ? (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {achieveError}
+            </Alert>
+          ) : (
+            <>
+              <DialogContentText sx={{ mb: 2 }}>
+                You're about to mark "{achieveGoalData?.name}" as achieved. This will:
+              </DialogContentText>
+              <Box component="ul" sx={{ pl: 4, mb: 3 }}>
+                <Typography component="li" variant="body2" sx={{ mb: 1 }}>
+                  Create an expense transaction for ${achieveGoalData?.target_amount?.toFixed(2)}
+                </Typography>
+                <Typography component="li" variant="body2">
+                  Mark this savings goal as achieved
+                </Typography>
+              </Box>
+            </>
+          )}
           
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="expense-category-label">Expense Category</InputLabel>
@@ -628,6 +653,7 @@ function SavingsGoals() {
             variant="contained" 
             color="success"
             sx={{ borderRadius: 1 }}
+            disabled={!!achieveError}
           >
             Achieve Goal
           </Button>
