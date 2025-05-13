@@ -49,11 +49,20 @@ const SummaryCard = styled(Card)(({ theme, color }) => ({
   display: 'flex',
   flexDirection: 'column',
   transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+  borderRadius: theme.shape.borderRadius,
+  overflow: 'hidden',
   '&:hover': {
     transform: 'translateY(-5px)',
     boxShadow: theme.shadows[10],
   },
-  borderLeft: `4px solid ${color}`,
+}));
+
+const CardHeader = styled(Box)(({ theme, color }) => ({
+  backgroundColor: color,
+  padding: theme.spacing(2),
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
 }));
 
 const QuickActionButton = styled(Button)(({ theme }) => ({
@@ -280,87 +289,83 @@ function Dashboard() {
         </Typography>
         <Grid container spacing={3} sx={{ mb: 4, justifyContent: 'center' }}>
           <Grid item xs={12} sm={6} md={3}>
-            <SummaryCard color="#4caf50">
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Total Income
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1 }}>
-                      {formatCurrency(summary.totalIncome)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      This month: {formatCurrency(summary.monthlyIncome)}
-                    </Typography>
-                  </Box>
-                  <TrendingUpIcon sx={{ color: '#4caf50', fontSize: 40 }} />
-                </Box>
+            <SummaryCard>
+              <CardHeader color="#4caf50">
+                <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
+                  Total Income
+                </Typography>
+                <TrendingUpIcon sx={{ color: 'white', fontSize: 30 }} />
+              </CardHeader>
+              <CardContent sx={{ pt: 2, pb: 1 }}>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {formatCurrency(summary.totalIncome)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  This month: {formatCurrency(summary.monthlyIncome)}
+                </Typography>
               </CardContent>
             </SummaryCard>
           </Grid>
           
           <Grid item xs={12} sm={6} md={3}>
-            <SummaryCard color="#f44336">
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Total Expenses
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1 }}>
-                      {formatCurrency(summary.totalExpenses)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      This month: {formatCurrency(summary.monthlyExpenses)}
-                    </Typography>
-                  </Box>
-                  <TrendingDownIcon sx={{ color: '#f44336', fontSize: 40 }} />
-                </Box>
+            <SummaryCard>
+              <CardHeader color="#f44336">
+                <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
+                  Total Expenses
+                </Typography>
+                <TrendingDownIcon sx={{ color: 'white', fontSize: 30 }} />
+              </CardHeader>
+              <CardContent sx={{ pt: 2, pb: 1 }}>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {formatCurrency(summary.totalExpenses)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  This month: {formatCurrency(summary.monthlyExpenses)}
+                </Typography>
               </CardContent>
             </SummaryCard>
           </Grid>
           
           <Grid item xs={12} sm={6} md={3}>
-            <SummaryCard color="#2196f3">
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Net Balance
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1, color: summary.netBalance >= 0 ? '#4caf50' : '#f44336' }}>
-                      {formatCurrency(summary.netBalance)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {summary.netBalance >= 0 ? 'Positive balance' : 'Negative balance'}
-                    </Typography>
-                  </Box>
-                  <AccountBalanceIcon sx={{ color: '#2196f3', fontSize: 40 }} />
-                </Box>
+            <SummaryCard>
+              <CardHeader color="#2196f3">
+                <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
+                  Net Balance
+                </Typography>
+                <AccountBalanceIcon sx={{ color: 'white', fontSize: 30 }} />
+              </CardHeader>
+              <CardContent sx={{ pt: 2, pb: 1 }}>
+                <Typography variant="h5" sx={{ 
+                  fontWeight: 'bold', 
+                  mb: 1,
+                  color: summary.netBalance >= 0 ? '#4caf50' : '#f44336' 
+                }}>
+                  {formatCurrency(summary.netBalance)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {summary.netBalance >= 0 ? 'Positive balance' : 'Negative balance'}
+                </Typography>
               </CardContent>
             </SummaryCard>
           </Grid>
           
           <Grid item xs={12} sm={6} md={3}>
-            <SummaryCard color="#ff9800">
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <Box>
-                    <Typography variant="subtitle2" color="text.secondary">
-                      Total Savings
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold', my: 1 }}>
-                      {formatCurrency(summary.totalSavings)}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {summary.totalIncome > 0 
-                        ? `${Math.round((summary.totalSavings / summary.totalIncome) * 100) || 0}% of income`
-                        : '0% of income'}
-                    </Typography>
-                  </Box>
-                  <SavingsIcon sx={{ color: '#ff9800', fontSize: 40 }} />
-                </Box>
+            <SummaryCard>
+              <CardHeader color="#ff9800">
+                <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
+                  Total Savings
+                </Typography>
+                <SavingsIcon sx={{ color: 'white', fontSize: 30 }} />
+              </CardHeader>
+              <CardContent sx={{ pt: 2, pb: 1 }}>
+                <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  {formatCurrency(summary.totalSavings)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {summary.totalIncome > 0 
+                    ? `${Math.round((summary.totalSavings / summary.totalIncome) * 100) || 0}% of income`
+                    : '0% of income'}
+                </Typography>
               </CardContent>
             </SummaryCard>
           </Grid>
