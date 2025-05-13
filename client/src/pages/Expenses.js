@@ -53,14 +53,16 @@ function Expenses() {
     (acc, t) => {
       if (t.type === 'income') {
         acc.totalIncome += t.amount;
-      } else {
+      } else if (t.type === 'expense') {
         acc.totalExpense += t.amount;
+      } else if (t.type === 'savings') {
+        acc.totalSavings += t.amount;
       }
       return acc;
     },
-    { totalIncome: 0, totalExpense: 0 }
+    { totalIncome: 0, totalExpense: 0, totalSavings: 0 }
   );
-  summary.netBalance = summary.totalIncome - summary.totalExpense;
+  summary.netBalance = summary.totalIncome - summary.totalExpense - summary.totalSavings;
 
   // Fetch transactions and categories on mount
   useEffect(() => {
@@ -117,8 +119,8 @@ function Expenses() {
       setError('Type is required');
       return;
     }
-    if (!formData.category) {
-      setError('Category is required');
+    if (!formData.category && (formData.type === 'expense' || formData.type === 'savings')) {
+      setError('Category is required for expenses and savings');
       return;
     }
     if (!formData.date) {
@@ -215,19 +217,20 @@ function Expenses() {
         container
         spacing={0.5} // Reduced spacing between cards
         sx={{
-          maxWidth: 900, // Slightly reduced max width
+          maxWidth: 1000, // Slightly increased max width to accommodate 4 cards
           mx: 'auto',
           mb: 4,
           justifyContent: 'center', // Center the cards
         }}
       >
-        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
+        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
           <Card
             sx={{
               boxShadow: 3,
               borderRadius: 2,
               transition: 'transform 0.2s',
               '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              bgcolor: '#e3f2fd',
             }}
           >
             <CardContent>
@@ -240,13 +243,14 @@ function Expenses() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
+        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
           <Card
             sx={{
               boxShadow: 3,
               borderRadius: 2,
               transition: 'transform 0.2s',
               '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              bgcolor: '#ffebee',
             }}
           >
             <CardContent>
@@ -259,13 +263,34 @@ function Expenses() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={3.5}> {/* Adjusted width for better centering */}
+        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
           <Card
             sx={{
               boxShadow: 3,
               borderRadius: 2,
               transition: 'transform 0.2s',
               '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              bgcolor: '#e8f5e9',
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" color="#1976d2" gutterBottom>
+                Total Savings
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                ${summary.totalSavings.toFixed(2)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
+          <Card
+            sx={{
+              boxShadow: 3,
+              borderRadius: 2,
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              bgcolor: '#f3e5f5',
             }}
           >
             <CardContent>
@@ -331,6 +356,7 @@ function Expenses() {
             >
               <MenuItem value="income">Income</MenuItem>
               <MenuItem value="expense">Expense</MenuItem>
+              <MenuItem value="savings">Savings</MenuItem>
             </Select>
           </FormControl>
           <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}>
@@ -339,7 +365,8 @@ function Expenses() {
               name="category"
               value={formData.category}
               onChange={handleInputChange}
-              required
+              required={formData.type === 'expense' || formData.type === 'savings'}
+              disabled={formData.type === 'income'}
             >
               {categories.map((cat) => (
                 <MenuItem key={cat.id} value={cat.name}>
@@ -443,7 +470,14 @@ function Expenses() {
                     }}
                   >
                     <TableCell>${transaction.amount.toFixed(2)}</TableCell>
-                    <TableCell>{transaction.type}</TableCell>
+                    <TableCell>
+                      <span style={{ 
+                        color: transaction.type === 'income' ? 'green' : 
+                               transaction.type === 'savings' ? 'blue' : 'red' 
+                      }}>
+                        {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
+                      </span>
+                    </TableCell>
                     <TableCell>{transaction.category}</TableCell>
                     <TableCell>{transaction.date}</TableCell>
                     <TableCell>{transaction.description || '-'}</TableCell>

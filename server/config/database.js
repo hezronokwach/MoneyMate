@@ -21,6 +21,8 @@ const seedCategories = (userId, callback) => {
     { name: 'Upkeep', type: 'income' },
     { name: 'Side-Hustle', type: 'income' },
     { name: 'Other', type: 'expenses' },
+    { name: 'Savings', type: 'savings' },
+
 
   ];
 

@@ -157,6 +157,14 @@ function SavingsGoals() {
     setEditId(null);
   };
 
+  // Calculate days remaining until deadline
+  const getDaysRemaining = (deadline) => {
+    const today = dayjs();
+    const deadlineDate = dayjs(deadline);
+    const daysRemaining = deadlineDate.diff(today, 'day');
+    return daysRemaining >= 0 ? daysRemaining : 0;
+  };
+
   return (
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1400, mx: 'auto', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       {/* Header */}
@@ -278,12 +286,18 @@ function SavingsGoals() {
             textAlign: 'center',
           }}
         >
-          Savings Goals
+          Your Savings Goals
         </Typography>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
           </Box>
+        ) : goals.length === 0 ? (
+          <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 2, boxShadow: 2 }}>
+            <Typography variant="body1" color="text.secondary">
+              You don't have any savings goals yet. Create one to start saving!
+            </Typography>
+          </Paper>
         ) : (
           <TableContainer
             component={Paper}
@@ -296,6 +310,7 @@ function SavingsGoals() {
                   <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Target Amount</TableCell>
                   <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Current Savings</TableCell>
                   <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Deadline</TableCell>
+                  <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Days Left</TableCell>
                   <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Progress</TableCell>
                   <TableCell sx={{ color: '#ffffff', fontWeight: 'bold' }}>Actions</TableCell>
                 </TableRow>
@@ -303,23 +318,37 @@ function SavingsGoals() {
               <TableBody>
                 {goals.map((goal) => {
                   const progress = Math.min((goal.current_savings / goal.target_amount) * 100, 100);
+                  const daysRemaining = getDaysRemaining(goal.deadline);
+                  const isOverdue = daysRemaining === 0 && progress < 100;
+                  
                   return (
                     <TableRow
                       key={goal.id}
                       sx={{
                         '&:hover': { bgcolor: '#f5f5f5' },
+                        bgcolor: isOverdue ? '#fff8e1' : 'inherit',
                       }}
                     >
                       <TableCell>{goal.name}</TableCell>
                       <TableCell>${goal.target_amount.toFixed(2)}</TableCell>
                       <TableCell>${goal.current_savings.toFixed(2)}</TableCell>
-                      <TableCell>{goal.deadline}</TableCell>
+                      <TableCell>{dayjs(goal.deadline).format('MMM D, YYYY')}</TableCell>
+                      <TableCell>
+                        {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}
+                      </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <LinearProgress
                             variant="determinate"
                             value={progress}
-                            sx={{ width: 100, bgcolor: '#e0e0e0' }}
+                            sx={{ 
+                              width: 100, 
+                              bgcolor: '#e0e0e0',
+                              '& .MuiLinearProgress-bar': {
+                                bgcolor: progress >= 100 ? '#4caf50' : 
+                                        daysRemaining < 7 && progress < 80 ? '#ff9800' : '#1976d2'
+                              }
+                            }}
                           />
                           <Typography>{progress.toFixed(0)}%</Typography>
                         </Box>
@@ -353,6 +382,25 @@ function SavingsGoals() {
             </Table>
           </TableContainer>
         )}
+      </Box>
+
+      {/* Savings Tips */}
+      <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 3, bgcolor: '#e3f2fd', borderRadius: 2, boxShadow: 1 }}>
+        <Typography variant="h6" sx={{ color: '#1976d2', mb: 2 }}>
+          Savings Tips for Students
+        </Typography>
+        <Typography variant="body1" paragraph>
+          • Set realistic goals based on your income and expenses
+        </Typography>
+        <Typography variant="body1" paragraph>
+          • Save small amounts regularly rather than large amounts occasionally
+        </Typography>
+        <Typography variant="body1" paragraph>
+          • Track your progress to stay motivated
+        </Typography>
+        <Typography variant="body1">
+          • Use the "Savings" transaction type in the Expenses page to record money you've set aside
+        </Typography>
       </Box>
 
       {/* Delete Confirmation Dialog */}

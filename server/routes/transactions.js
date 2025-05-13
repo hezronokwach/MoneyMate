@@ -15,8 +15,13 @@ router.post('/', auth, async (req, res) => {
   if (typeof amount !== 'number' || amount <= 0) {
     return res.status(400).json({ message: 'Amount must be a positive number' });
   }
-  if (!['income', 'expense'].includes(type)) {
-    return res.status(400).json({ message: 'Type must be income or expense' });
+  if (!['income', 'expense', 'savings'].includes(type)) {
+    return res.status(400).json({ message: 'Type must be income, expense, or savings' });
+  }
+  
+  // For expenses and savings, category is required
+  if ((type === 'expense' || type === 'savings') && !category) {
+    return res.status(400).json({ message: 'Category is required for expense and savings transactions' });
   }
 
   try {
@@ -62,6 +67,37 @@ router.get('/', auth, (req, res) => {
   }
 });
 
+// GET /api/transactions/summary - Get summary of transactions
+router.get('/summary', auth, (req, res) => {
+  try {
+    db.all(
+      `SELECT 
+        COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as total_income,
+        COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) as total_expenses,
+        COALESCE(SUM(CASE WHEN type = 'savings' THEN amount ELSE 0 END), 0) as total_savings
+       FROM transactions
+       WHERE user_id = ?`,
+      [req.user.id],
+      (err, results) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Server error fetching transaction summary' });
+        }
+        
+        const summary = results[0] || { total_income: 0, total_expenses: 0, total_savings: 0 };
+        
+        // Calculate net balance (income - expenses - savings)
+        summary.net_balance = summary.total_income - summary.total_expenses - summary.total_savings;
+        
+        res.json(summary);
+      }
+    );
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ message: 'Server error fetching transaction summary' });
+  }
+});
+
 // PUT /api/transactions/:id - Update a transaction
 router.put('/:id', auth, (req, res) => {
   const { id } = req.params;
@@ -74,8 +110,13 @@ router.put('/:id', auth, (req, res) => {
   if (typeof amount !== 'number' || amount <= 0) {
     return res.status(400).json({ message: 'Amount must be a positive number' });
   }
-  if (!['income', 'expense'].includes(type)) {
-    return res.status(400).json({ message: 'Type must be income or expense' });
+  if (!['income', 'expense', 'savings'].includes(type)) {
+    return res.status(400).json({ message: 'Type must be income, expense, or savings' });
+  }
+  
+  // For expenses and savings, category is required
+  if ((type === 'expense' || type === 'savings') && !category) {
+    return res.status(400).json({ message: 'Category is required for expense and savings transactions' });
   }
 
   try {

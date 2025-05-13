@@ -12,7 +12,7 @@ router.get('/', auth, (req, res) => {
                 SELECT SUM(t.amount)
                 FROM transactions t
                 WHERE t.user_id = sg.user_id
-                  AND t.type = 'income'
+                  AND t.type = 'savings'
               ), 0) AS current_savings
        FROM savings_goals sg
        WHERE sg.user_id = ?`,
