@@ -13,6 +13,7 @@ import Reports from './pages/Reports';
 import Help from './pages/Help';
 import theme from './theme';
 import { Box } from '@mui/material';
+import SavingsGoals from './pages/SavingGoals';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useContext(AuthContext);
@@ -59,6 +60,14 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Budget />
+              </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/savings"
+            element={
+              <ProtectedRoute>
+                <SavingsGoals />
               </ProtectedRoute>
             }
           />
