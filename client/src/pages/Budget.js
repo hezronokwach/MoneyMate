@@ -257,61 +257,138 @@ function Budgets() {
 
 
       {/* Summary Statistics */}
-      <Grid
-        container
-        spacing={0.5} // Reduced spacing between cards
-        sx={{
-          maxWidth: 900, // Reduced max width
-          mx: 'auto',
-          mb: 4,
-          justifyContent: 'center', // Center the cards
-        }}
-      >
-        <Grid item xs={12} sm={5}> {/* Adjusted width for better centering */}
-          <Card
-            sx={{
-              boxShadow: 3,
-              borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Total Budgeted
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                ${summary.totalBudgeted.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={5}> {/* Adjusted width for better centering */}
-          <Card
-            sx={{
-              boxShadow: 3,
-              borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Total Remaining
-              </Typography>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 'bold',
-                  color: summary.totalRemaining >= 0 ? 'green' : 'red',
-                }}
-              >
-                ${summary.totalRemaining.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      <Box
+  sx={{
+    maxWidth: 1000,
+    mx: 'auto',
+    mb: 4,
+    p: 3,
+    bgcolor: '#ffffff',
+    borderRadius: 2,
+    boxShadow: 2
+  }}
+>
+  <Typography
+    variant="h6"
+    sx={{
+      color: '#1976d2',
+      mb: 3,
+      fontWeight: 'medium',
+      textAlign: 'center'
+    }}
+  >
+    Budget Summary
+  </Typography>
+
+  <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 2 }}>
+    {/* Total Budgeted */}
+    <Box
+      sx={{
+        flex: '1 1 200px',
+        p: 2,
+        bgcolor: '#e3f2fd',
+        borderRadius: 2,
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        Total Budgeted
+      </Typography>
+      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+        ${summary.totalBudgeted.toFixed(2)}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        Planned spending
+      </Typography>
+    </Box>
+
+    {/* Total Remaining */}
+    <Box
+      sx={{
+        flex: '1 1 200px',
+        p: 2,
+        bgcolor: '#e8f5e9',
+        borderRadius: 2,
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        Total Remaining
+      </Typography>
+      <Typography variant="h4" sx={{ 
+        fontWeight: 'bold', 
+        color: summary.totalRemaining >= 0 ? '#4caf50' : '#f44336' 
+      }}>
+        ${summary.totalRemaining.toFixed(2)}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        Budget left to spend
+      </Typography>
+    </Box>
+
+    {/* Budget Health */}
+    <Box
+      sx={{
+        flex: '1 1 200px',
+        p: 2,
+        bgcolor: '#fff8e1',
+        borderRadius: 2,
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        Budget Health
+      </Typography>
+      <Typography variant="h4" sx={{ 
+        fontWeight: 'bold', 
+        color: calculateBudgetHealth() > 75 ? '#4caf50' : 
+               calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336' 
+      }}>
+        {calculateBudgetHealth()}%
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        Budgets on track
+      </Typography>
+    </Box>
+
+    {/* Current Month */}
+    <Box
+      sx={{
+        flex: '1 1 200px',
+        p: 2,
+        bgcolor: '#f3e5f5',
+        borderRadius: 2,
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        Current Month
+      </Typography>
+      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#9c27b0' }}>
+        {getCurrentMonthBudgets().length}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        Active budgets this month
+      </Typography>
+    </Box>
+  </Box>
+</Box>
 
       {/* Budget Progress Visualization */}
       <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4 }}>

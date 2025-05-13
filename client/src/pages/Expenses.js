@@ -276,103 +276,134 @@ function Expenses() {
       </Typography>
 
       {/* Summary Statistics */}
-      <Grid
-        container
-        spacing={0.5} // Reduced spacing between cards
+      <Box
         sx={{
-          maxWidth: 1000, // Slightly increased max width to accommodate 4 cards
+          maxWidth: 1000,
           mx: 'auto',
           mb: 4,
-          justifyContent: 'center', // Center the cards
+          p: 3,
+          bgcolor: '#ffffff',
+          borderRadius: 2,
+          boxShadow: 2
         }}
       >
-        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
-          <Card
+        <Typography
+          variant="h6"
+          sx={{
+            color: '#1976d2',
+            mb: 3,
+            fontWeight: 'medium',
+            textAlign: 'center'
+          }}
+        >
+          Financial Summary
+        </Typography>
+
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 2 }}>
+          {/* Total Income */}
+          <Box
             sx={{
-              boxShadow: 3,
-              borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              flex: '1 1 200px',
+              p: 2,
               bgcolor: '#e3f2fd',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Total Income
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                ${summary.totalIncome.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
-          <Card
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Total Income
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+              ${summary.totalIncome.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Money you've earned
+            </Typography>
+          </Box>
+
+          {/* Total Expenses */}
+          <Box
             sx={{
-              boxShadow: 3,
-              borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              flex: '1 1 200px',
+              p: 2,
               bgcolor: '#ffebee',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Total Expenses
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                ${summary.totalExpense.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
-          <Card
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Total Expenses
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#f44336' }}>
+              ${summary.totalExpense.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Money you've spent
+            </Typography>
+          </Box>
+
+          {/* Total Savings */}
+          <Box
             sx={{
-              boxShadow: 3,
-              borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
+              flex: '1 1 200px',
+              p: 2,
               bgcolor: '#e8f5e9',
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Total Savings
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                ${summary.totalSavings.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}> {/* Adjusted width for 4 cards */}
-          <Card
-            sx={{
-              boxShadow: 3,
               borderRadius: 2,
-              transition: 'transform 0.2s',
-              '&:hover': { transform: 'scale(1.02)', boxShadow: 6 },
-              bgcolor: '#f3e5f5',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}
           >
-            <CardContent>
-              <Typography variant="h6" color="#1976d2" gutterBottom>
-                Net Balance
-              </Typography>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 'bold',
-                  color: summary.netBalance >= 0 ? 'green' : 'red',
-                }}
-              >
-                ${summary.netBalance.toFixed(2)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Total Savings
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+              ${summary.totalSavings.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Money you've set aside
+            </Typography>
+          </Box>
+
+          {/* Net Balance */}
+          <Box
+            sx={{
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#f3e5f5',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Net Balance
+            </Typography>
+            <Typography variant="h4" sx={{ 
+              fontWeight: 'bold', 
+              color: summary.netBalance >= 0 ? '#9c27b0' : '#f44336' 
+            }}>
+              ${summary.netBalance.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Available to spend
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
 
       {/* Error Message */}
       {error && (

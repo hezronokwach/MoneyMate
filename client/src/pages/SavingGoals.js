@@ -38,6 +38,7 @@ function SavingsGoals() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [totalSavings, setTotalSavings] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     target_amount: '',
@@ -46,7 +47,7 @@ function SavingsGoals() {
   const [editId, setEditId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-  
+
   // New state for achieve goal functionality
   const [achieveDialogOpen, setAchieveDialogOpen] = useState(false);
   const [achieveGoalId, setAchieveGoalId] = useState(null);
@@ -57,11 +58,34 @@ function SavingsGoals() {
   });
   const [achieveError, setAchieveError] = useState('');
 
-  // Fetch goals and categories on mount
+  // Fetch goals, categories, and total savings on mount
   useEffect(() => {
     fetchGoals();
     fetchCategories();
+    fetchTotalSavings();
   }, []);
+
+  // Fetch total savings from transactions
+  const fetchTotalSavings = async () => {
+    try {
+      // Get all transactions with type 'savings'
+      const transactions = await api.get('/transactions?type=savings');
+      
+      // Log the transactions to help debug
+      console.log('Savings transactions:', transactions);
+      
+      // Verify each transaction is actually a savings type
+      const validSavingsTransactions = transactions.filter(t => t.type === 'savings');
+      
+      // Calculate total savings (sum of all savings transactions)
+      const total = validSavingsTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
+      
+      // Ensure we don't show negative total savings (in case there's an accounting error)
+      setTotalSavings(Math.max(0, total));
+    } catch (err) {
+      console.error('Failed to fetch total savings:', err);
+    }
+  };
 
   // Fetch savings goals from backend
   const fetchGoals = async () => {
@@ -143,6 +167,7 @@ function SavingsGoals() {
       fetchGoals();
       resetForm();
       setTimeout(() => setSuccess(''), 2000); // Clear success message
+      fetchTotalSavings(); // Refresh total savings after adding/updating a goal
     } catch (err) {
       setError(err.message || 'Failed to save savings goal');
     }
@@ -178,6 +203,7 @@ function SavingsGoals() {
       fetchGoals();
       handleDeleteClose();
       setTimeout(() => setSuccess(''), 2000);
+      fetchTotalSavings(); // Refresh total savings after deleting a goal
     } catch (err) {
       setError(err.message || 'Failed to delete savings goal');
     }
@@ -220,6 +246,7 @@ function SavingsGoals() {
       fetchGoals();
       handleAchieveClose();
       setTimeout(() => setSuccess(''), 2000);
+      fetchTotalSavings(); // Refresh total savings after achieving a goal
     } catch (err) {
       // Check if this is a shortfall error
       if (err.message && err.message.includes('Not enough savings')) {
@@ -255,6 +282,7 @@ function SavingsGoals() {
   };
 
   return (
+
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1400, mx: 'auto', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       {/* Header */}
       <Typography
@@ -269,6 +297,135 @@ function SavingsGoals() {
       >
         Savings Goals
       </Typography>
+      {/* Savings Summary Section */}
+      <Box
+        sx={{
+          maxWidth: 1000,
+          mx: 'auto',
+          mb: 4,
+          p: 3,
+          bgcolor: '#ffffff',
+          borderRadius: 2,
+          boxShadow: 2
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            color: '#1976d2',
+            mb: 3,
+            fontWeight: 'medium',
+            textAlign: 'center'
+          }}
+        >
+          Savings Summary
+        </Typography>
+
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 2 }}>
+          {/* Total Savings */}
+          <Box
+            sx={{
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#e3f2fd',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Total Savings
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+              Ksh. {totalSavings.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Total money you've saved
+            </Typography>
+          </Box>
+
+          {/* Allocated Savings */}
+          <Box
+            sx={{
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#fff8e1',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Allocated to Goals
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
+              Ksh. {goals.filter(goal => !goal.achieved).reduce((total, goal) => total + Math.min(goal.current_savings, goal.target_amount), 0).toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Savings assigned to active goals
+            </Typography>
+          </Box>
+
+          {/* Available Savings */}
+          <Box
+            sx={{
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#e8f5e9',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Available Savings
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
+              Ksh. {Math.max(0, totalSavings - goals.filter(goal => !goal.achieved).reduce((total, goal) => 
+                total + Math.min(goal.current_savings, goal.target_amount), 0)).toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Savings not allocated to any goal
+            </Typography>
+          </Box>
+
+          {/* Achievement Rate */}
+          <Box
+            sx={{
+              flex: '1 1 200px',
+              p: 2,
+              bgcolor: '#f3e5f5',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              Goals Achieved
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#9c27b0' }}>
+              {goals.filter(goal => goal.achieved).length} / {goals.length}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {goals.length > 0
+                ? `${Math.round((goals.filter(goal => goal.achieved).length / goals.length) * 100)}% completion rate`
+                : 'No goals created yet'}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
 
       {/* Error/Success Messages */}
       {error && (
@@ -412,7 +569,7 @@ function SavingsGoals() {
                   const isOverdue = daysRemaining === 0 && progress < 100;
                   const isAchieved = goal.achieved === 1;
                   const canAchieve = hasEnoughSavings(goal);
-                  
+
                   return (
                     <TableRow
                       key={goal.id}
@@ -422,8 +579,8 @@ function SavingsGoals() {
                       }}
                     >
                       <TableCell>{goal.name}</TableCell>
-                      <TableCell>${goal.target_amount.toFixed(2)}</TableCell>
-                      <TableCell>${goal.current_savings.toFixed(2)}</TableCell>
+                      <TableCell>Ksh. {goal.target_amount.toFixed(2)}</TableCell>
+                      <TableCell>Ksh. {goal.current_savings.toFixed(2)}</TableCell>
                       <TableCell>{dayjs(goal.deadline).format('MMM D, YYYY')}</TableCell>
                       <TableCell>
                         {isAchieved ? (
@@ -437,13 +594,13 @@ function SavingsGoals() {
                           <LinearProgress
                             variant="determinate"
                             value={progress}
-                            sx={{ 
-                              width: 100, 
+                            sx={{
+                              width: 100,
                               bgcolor: '#e0e0e0',
                               '& .MuiLinearProgress-bar': {
-                                bgcolor: isAchieved ? '#4caf50' : 
-                                        progress >= 100 ? '#4caf50' : 
-                                        daysRemaining < 7 && progress < 80 ? '#ff9800' : '#1976d2'
+                                bgcolor: isAchieved ? '#4caf50' :
+                                  progress >= 100 ? '#4caf50' :
+                                    daysRemaining < 7 && progress < 80 ? '#ff9800' : '#1976d2'
                               }
                             }}
                           />
@@ -452,23 +609,23 @@ function SavingsGoals() {
                       </TableCell>
                       <TableCell>
                         {isAchieved ? (
-                          <Chip 
-                            label="Achieved" 
-                            color="success" 
+                          <Chip
+                            label="Achieved"
+                            color="success"
                             size="small"
                             sx={{ fontWeight: 'bold' }}
                           />
                         ) : canAchieve ? (
-                          <Chip 
-                            label="Ready to Achieve" 
-                            color="primary" 
+                          <Chip
+                            label="Ready to Achieve"
+                            color="primary"
                             size="small"
                             sx={{ fontWeight: 'bold' }}
                           />
                         ) : (
-                          <Chip 
-                            label="In Progress" 
-                            color="info" 
+                          <Chip
+                            label="In Progress"
+                            color="info"
                             variant="outlined"
                             size="small"
                           />
@@ -503,7 +660,7 @@ function SavingsGoals() {
                                 }}
                                 size="small"
                                 disabled={!canAchieve}
-                                title={!canAchieve ? `Need $${(goal.target_amount - goal.current_savings).toFixed(2)} more` : ''}
+                                title={!canAchieve ? `Need Ksh. ${(goal.target_amount - goal.current_savings).toFixed(2)} more` : ''}
                               >
                                 Achieve
                               </Button>
@@ -607,7 +764,7 @@ function SavingsGoals() {
               </DialogContentText>
               <Box component="ul" sx={{ pl: 4, mb: 3 }}>
                 <Typography component="li" variant="body2" sx={{ mb: 1 }}>
-                  Create an expense transaction for ${achieveGoalData?.target_amount?.toFixed(2)}
+                  Create an expense transaction for Ksh. {achieveGoalData?.target_amount?.toFixed(2)}
                 </Typography>
                 <Typography component="li" variant="body2">
                   Mark this savings goal as achieved
@@ -615,7 +772,7 @@ function SavingsGoals() {
               </Box>
             </>
           )}
-          
+
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="expense-category-label">Expense Category</InputLabel>
             <Select
@@ -633,7 +790,7 @@ function SavingsGoals() {
               ))}
             </Select>
           </FormControl>
-          
+
           <TextField
             fullWidth
             label="Description"
@@ -648,9 +805,9 @@ function SavingsGoals() {
           <Button onClick={handleAchieveClose} sx={{ color: '#1976d2' }}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleAchieveGoal} 
-            variant="contained" 
+          <Button
+            onClick={handleAchieveGoal}
+            variant="contained"
             color="success"
             sx={{ borderRadius: 1 }}
             disabled={!!achieveError}

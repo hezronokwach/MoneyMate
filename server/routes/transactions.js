@@ -87,17 +87,27 @@ router.post('/', auth, async (req, res) => {
 // GET /api/transactions - Retrieve all transactions for the user
 router.get('/', auth, (req, res) => {
   try {
-    db.all(
-      `SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC`,
-      [req.user.id],
-      (err, transactions) => {
-        if (err) {
-          console.error('Database error:', err);
-          return res.status(500).json({ message: 'Server error getting transactions' });
-        }
-        res.json(transactions);
+    const { type } = req.query;
+    
+    let query = `SELECT * FROM transactions WHERE user_id = ?`;
+    let params = [req.user.id];
+    
+    // Add type filter if provided
+    if (type) {
+      query += ` AND type = ?`;
+      params.push(type);
+    }
+    
+    // Add order by date desc
+    query += ` ORDER BY date DESC`;
+    
+    db.all(query, params, (err, transactions) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Server error getting transactions' });
       }
-    );
+      res.json(transactions);
+    });
   } catch (error) {
     console.error('Server error:', error);
     res.status(500).json({ message: 'Server error getting transactions' });
