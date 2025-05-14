@@ -30,8 +30,21 @@ import {
 import {
   TrendingUp,
   TrendingDown,
+  AccountBalance as AccountBalanceIcon,
+  Savings as SavingsIcon,
 } from '@mui/icons-material';
 import api from '../utils/api';
+import { styled } from '@mui/material/styles';
+
+// Styled components for card titles
+const SectionTitle = styled(Box)(({ theme, bgcolor = '#1976d2' }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(1.5, 2),
+  borderRadius: `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0 0`,
+  backgroundColor: bgcolor,
+  marginBottom: theme.spacing(2),
+}));
 
 // Budgets page to manage monthly budgets per category
 function Budgets() {
@@ -255,252 +268,166 @@ function Budgets() {
         Budgets
       </Typography>
 
-
       {/* Summary Statistics */}
       <Box
-  sx={{
-    maxWidth: 1000,
-    mx: 'auto',
-    mb: 4,
-    p: 3,
-    bgcolor: '#ffffff',
-    borderRadius: 2,
-    boxShadow: 2
-  }}
->
-  <Typography
-    variant="h6"
-    sx={{
-      color: '#1976d2',
-      mb: 3,
-      fontWeight: 'medium',
-      textAlign: 'center'
-    }}
-  >
-    Budget Summary
-  </Typography>
+        sx={{
+          maxWidth: 1200,
+          mx: 'auto',
+          mb: 4,
+          bgcolor: '#ffffff',
+          borderRadius: 2,
+          boxShadow: 2,
+          overflow: 'hidden',
+        }}
+      >
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            Budget Summary
+          </Typography>
+        </SectionTitle>
 
-  <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 2 }}>
-    {/* Total Budgeted */}
-    <Box
-      sx={{
-        flex: '1 1 200px',
-        p: 2,
-        bgcolor: '#e3f2fd',
-        borderRadius: 2,
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-        Total Budgeted
-      </Typography>
-      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-        ${summary.totalBudgeted.toFixed(2)}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        Planned spending
-      </Typography>
-    </Box>
-
-    {/* Total Remaining */}
-    <Box
-      sx={{
-        flex: '1 1 200px',
-        p: 2,
-        bgcolor: '#e8f5e9',
-        borderRadius: 2,
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-        Total Remaining
-      </Typography>
-      <Typography variant="h4" sx={{ 
-        fontWeight: 'bold', 
-        color: summary.totalRemaining >= 0 ? '#4caf50' : '#f44336' 
-      }}>
-        ${summary.totalRemaining.toFixed(2)}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        Budget left to spend
-      </Typography>
-    </Box>
-
-    {/* Budget Health */}
-    <Box
-      sx={{
-        flex: '1 1 200px',
-        p: 2,
-        bgcolor: '#fff8e1',
-        borderRadius: 2,
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-        Budget Health
-      </Typography>
-      <Typography variant="h4" sx={{ 
-        fontWeight: 'bold', 
-        color: calculateBudgetHealth() > 75 ? '#4caf50' : 
-               calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336' 
-      }}>
-        {calculateBudgetHealth()}%
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        Budgets on track
-      </Typography>
-    </Box>
-
-    {/* Current Month */}
-    <Box
-      sx={{
-        flex: '1 1 200px',
-        p: 2,
-        bgcolor: '#f3e5f5',
-        borderRadius: 2,
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
-      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-        Current Month
-      </Typography>
-      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#9c27b0' }}>
-        {getCurrentMonthBudgets().length}
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-        Active budgets this month
-      </Typography>
-    </Box>
-  </Box>
-</Box>
-
-      {/* Budget Progress Visualization */}
-      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4 }}>
-        <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 3 }}>
-          <Typography
-            variant="h5"
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' }, 
+          justifyContent: 'space-between', 
+          gap: 2, 
+          p: 3 
+        }}>
+          {/* Total Budgeted */}
+          <Box
             sx={{
-              color: '#1976d2',
-              fontWeight: 'bold',
-              mb: 3,
+              flex: 1,
+              p: 2,
+              bgcolor: '#e3f2fd',
+              borderRadius: 2,
               textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #bbdefb',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            Budget Progress
-          </Typography>
-          
-          {budgets.length === 0 ? (
-            <Typography variant="body1" sx={{ textAlign: 'center', py: 3 }}>
-              No budgets found. Add your first budget using the form below.
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <AccountBalanceIcon sx={{ color: '#1976d2', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#1976d2' }}>
+                Total Budgeted
+              </Typography>
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+              ${summary.totalBudgeted.toFixed(2)}
             </Typography>
-          ) : (
-            <Grid container spacing={2}>
-              {budgets.map((budget) => {
-                const spent = calculateSpentAmount(budget.category, budget.month);
-                const remaining = budget.amount - spent;
-                const percentSpent = (spent / budget.amount) * 100;
-                const isOverBudget = spent > budget.amount;
-                
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={budget.id}>
-                    <Card sx={{ boxShadow: 2, borderRadius: 2 }}>
-                      <CardContent>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                          <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
-                            {budget.category}
-                          </Typography>
-                          <Tooltip title={`Month: ${budget.month}`}>
-                            <Typography variant="body2" color="text.secondary">
-                              {budget.month}
-                            </Typography>
-                          </Tooltip>
-                        </Box>
-                        
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                          <Typography variant="body2" color="text.secondary">
-                            Budget: ${budget.amount.toFixed(2)}
-                          </Typography>
-                          <Typography 
-                            variant="body2" 
-                            sx={{ 
-                              color: isOverBudget ? 'red' : 'green',
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            {isOverBudget ? (
-                              <>
-                                <TrendingUp sx={{ fontSize: 16, mr: 0.5 }} />
-                                Over by ${Math.abs(remaining).toFixed(2)}
-                              </>
-                            ) : (
-                              <>
-                                <TrendingDown sx={{ fontSize: 16, mr: 0.5 }} />
-                                Under by ${remaining.toFixed(2)}
-                              </>
-                            )}
-                          </Typography>
-                        </Box>
-                        
-                        <Box sx={{ mt: 2 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Box sx={{ width: '100%', mr: 1 }}>
-                              <Tooltip title={`${percentSpent.toFixed(0)}% of budget used`}>
-                                <LinearProgress
-                                  variant="determinate"
-                                  value={Math.min(percentSpent, 100)}
-                                  sx={{
-                                    height: 8,
-                                    borderRadius: 5,
-                                    backgroundColor: '#e0e0e0',
-                                    '& .MuiLinearProgress-bar': {
-                                      backgroundColor: percentSpent > 90 ? 'red' : 
-                                                      percentSpent > 75 ? 'orange' : 'green',
-                                    }
-                                  }}
-                                />
-                              </Tooltip>
-                            </Box>
-                            <Box sx={{ minWidth: 35 }}>
-                              <Typography variant="body2" color="text.secondary">
-                                {Math.min(percentSpent, 100).toFixed(0)}%
-                              </Typography>
-                            </Box>
-                          </Box>
-                          
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                            <Typography variant="body2" color="text.secondary">
-                              Spent: ${spent.toFixed(2)}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              Remaining: ${remaining.toFixed(2)}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Paper>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Planned spending
+            </Typography>
+          </Box>
+
+          {/* Total Remaining */}
+          <Box
+            sx={{
+              flex: 1,
+              p: 2,
+              bgcolor: '#e8f5e9',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #c8e6c9',
+              minWidth: { xs: '100%', md: '0' },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <SavingsIcon sx={{ color: '#4caf50', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#4caf50' }}>
+                Total Remaining
+              </Typography>
+            </Box>
+            <Typography variant="h4" sx={{ 
+              fontWeight: 'bold', 
+              color: summary.totalRemaining >= 0 ? '#4caf50' : '#f44336' 
+            }}>
+              ${summary.totalRemaining.toFixed(2)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Budget left to spend
+            </Typography>
+          </Box>
+
+          {/* Budget Health */}
+          <Box
+            sx={{
+              flex: 1,
+              p: 2,
+              bgcolor: '#fff8e1',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #ffecb3',
+              minWidth: { xs: '100%', md: '0' },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <TrendingUp sx={{ 
+                color: calculateBudgetHealth() > 75 ? '#4caf50' : 
+                       calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336',
+                mr: 1 
+              }} />
+              <Typography variant="subtitle1" sx={{ 
+                fontWeight: 'medium', 
+                color: calculateBudgetHealth() > 75 ? '#4caf50' : 
+                       calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336' 
+              }}>
+                Budget Health
+              </Typography>
+            </Box>
+            <Typography variant="h4" sx={{ 
+              fontWeight: 'bold', 
+              color: calculateBudgetHealth() > 75 ? '#4caf50' : 
+                     calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336' 
+            }}>
+              {calculateBudgetHealth()}%
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Budgets on track
+            </Typography>
+          </Box>
+
+          {/* Current Month */}
+          <Box
+            sx={{
+              flex: 1,
+              p: 2,
+              bgcolor: '#f3e5f5',
+              borderRadius: 2,
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid #e1bee7',
+              minWidth: { xs: '100%', md: '0' },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <AccountBalanceIcon sx={{ color: '#9c27b0', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#9c27b0' }}>
+                Current Month
+              </Typography>
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#9c27b0' }}>
+              {getCurrentMonthBudgets().length}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Active budgets this month
+            </Typography>
+          </Box>
+        </Box>
       </Box>
 
       {/* Error/Success Messages */}
@@ -521,97 +448,217 @@ function Budgets() {
         onSubmit={handleSubmit}
         sx={{
           mb: 4,
-          p: 3,
           bgcolor: '#ffffff',
           borderRadius: 2,
           boxShadow: 2,
           maxWidth: 800,
           mx: 'auto',
+          overflow: 'hidden',
         }}
       >
-        <Typography variant="h6" sx={{ color: '#1976d2', mb: 2, fontWeight: 'medium' }}>
-          {editId ? 'Edit Budget' : 'Add Budget'}
-        </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          <TextField
-            label="Month (YYYY-MM)"
-            name="month"
-            value={formData.month}
-            onChange={handleInputChange}
-            required
-            sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}
-            variant="outlined"
-            placeholder="2025-05"
-          />
-          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}>
-            <InputLabel>Category</InputLabel>
-            <Select
-              name="category_id"
-              value={formData.category_id}
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            {editId ? 'Edit Budget' : 'Add Budget'}
+          </Typography>
+        </SectionTitle>
+        
+        <Box sx={{ p: 3 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            gap: 2, 
+            mb: 2 
+          }}>
+            <TextField
+              label="Month (YYYY-MM)"
+              name="month"
+              value={formData.month}
               onChange={handleInputChange}
               required
-            >
-              {categories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Amount"
-            name="amount"
-            type="number"
-            value={formData.amount}
-            onChange={handleInputChange}
-            required
-            sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}
-            variant="outlined"
-          />
-        </Box>
-        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{
-              backgroundColor: '#1976d2',
-              '&:hover': { backgroundColor: '#0d47a1' },
-              borderRadius: 1,
-              px: 3,
-            }}
-          >
-            {editId ? 'Update Budget' : 'Add Budget'}
-          </Button>
-          {editId && (
-            <Button
+              sx={{ flex: 1 }}
               variant="outlined"
-              onClick={resetForm}
+              placeholder="2025-05"
+            />
+            <FormControl sx={{ flex: 1 }}>
+              <InputLabel>Category</InputLabel>
+              <Select
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleInputChange}
+                required
+              >
+                {categories.map((cat) => (
+                  <MenuItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="Amount"
+              name="amount"
+              type="number"
+              value={formData.amount}
+              onChange={handleInputChange}
+              required
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+          </Box>
+          
+          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+            <Button
+              type="submit"
+              variant="contained"
               sx={{
-                borderColor: '#1976d2',
-                color: '#1976d2',
+                backgroundColor: '#1976d2',
+                '&:hover': { backgroundColor: '#0d47a1' },
                 borderRadius: 1,
                 px: 3,
               }}
             >
-              Cancel
+              {editId ? 'Update Budget' : 'Add Budget'}
             </Button>
-          )}
+            {editId && (
+              <Button
+                variant="outlined"
+                onClick={resetForm}
+                sx={{
+                  borderColor: '#1976d2',
+                  color: '#1976d2',
+                  borderRadius: 1,
+                  px: 3,
+                }}
+              >
+                Cancel
+              </Button>
+            )}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Budget Progress Visualization */}
+      <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4 }}>
+        <Box sx={{ 
+          bgcolor: '#ffffff',
+          borderRadius: 2,
+          boxShadow: 2,
+          overflow: 'hidden',
+        }}>
+          <SectionTitle bgcolor="#1976d2">
+            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+              Budget Progress
+            </Typography>
+          </SectionTitle>
+          
+          <Box sx={{ p: 3 }}>
+            {budgets.length === 0 ? (
+              <Typography variant="body1" sx={{ textAlign: 'center', py: 3 }}>
+                No budgets found. Add your first budget using the form above.
+              </Typography>
+            ) : (
+              <Grid container spacing={2}>
+                {budgets.map((budget) => {
+                  const spent = calculateSpentAmount(budget.category, budget.month);
+                  const remaining = budget.amount - spent;
+                  const percentSpent = (spent / budget.amount) * 100;
+                  const isOverBudget = spent > budget.amount;
+                  
+                  return (
+                    <Grid item xs={12} sm={6} md={4} key={budget.id}>
+                      <Card sx={{ boxShadow: 2, borderRadius: 2 }}>
+                        <CardContent>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 'medium' }}>
+                              {budget.category}
+                            </Typography>
+                            <Tooltip title={`Month: ${budget.month}`}>
+                              <Typography variant="body2" color="text.secondary">
+                                {budget.month}
+                              </Typography>
+                            </Tooltip>
+                          </Box>
+                          
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant="body2" color="text.secondary">
+                              Budget: ${budget.amount.toFixed(2)}
+                            </Typography>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: isOverBudget ? 'red' : 'green',
+                                display: 'flex',
+                                alignItems: 'center'
+                              }}
+                            >
+                              {isOverBudget ? (
+                                <>
+                                  <TrendingUp sx={{ fontSize: 16, mr: 0.5 }} />
+                                  Over by ${Math.abs(remaining).toFixed(2)}
+                                </>
+                              ) : (
+                                <>
+                                  <TrendingDown sx={{ fontSize: 16, mr: 0.5 }} />
+                                  Under by ${remaining.toFixed(2)}
+                                </>
+                              )}
+                            </Typography>
+                          </Box>
+                          
+                          <Box sx={{ mt: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Box sx={{ width: '100%', mr: 1 }}>
+                                <Tooltip title={`${percentSpent.toFixed(0)}% of budget used`}>
+                                  <LinearProgress
+                                    variant="determinate"
+                                    value={Math.min(percentSpent, 100)}
+                                    sx={{
+                                      height: 8,
+                                      borderRadius: 5,
+                                      backgroundColor: '#e0e0e0',
+                                      '& .MuiLinearProgress-bar': {
+                                        backgroundColor: percentSpent > 90 ? 'red' : 
+                                                        percentSpent > 75 ? 'orange' : 'green',
+                                      }
+                                    }}
+                                  />
+                                </Tooltip>
+                              </Box>
+                              <Box sx={{ minWidth: 35 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                  {Math.min(percentSpent, 100).toFixed(0)}%
+                                </Typography>
+                              </Box>
+                            </Box>
+                            
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                Spent: ${spent.toFixed(2)}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Remaining: ${remaining.toFixed(2)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            )}
+          </Box>
         </Box>
       </Box>
 
       {/* Budgets Table */}
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-        <Typography
-          variant="h5"
-          sx={{
-            color: '#1976d2',
-            fontWeight: 'bold',
-            mb: 2,
-            textAlign: 'center',
-          }}
-        >
-          Budgets
-        </Typography>
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            All Budgets
+          </Typography>
+        </SectionTitle>
+        
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
