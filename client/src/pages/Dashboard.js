@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardActions,
-  Divider,
   LinearProgress,
   Table,
   TableBody,
@@ -18,12 +17,9 @@ import {
   TableHead,
   TableRow,
   Chip,
-  IconButton,
-  Tooltip,
   CircularProgress,
   Alert,
   Container,
-  Stack,
   Grid,
   Fade
 } from '@mui/material';
@@ -115,17 +111,6 @@ const sectionColors = {
   savings: '#d84315',
   summary: '#1976d2'
 };
-
-const QuickActionButton = styled(Button)(({ theme }) => ({
-  padding: theme.spacing(1.5),
-  borderRadius: theme.shape.borderRadius,
-  fontWeight: 'bold',
-  textTransform: 'none',
-  boxShadow: theme.shadows[2],
-  '&:hover': {
-    boxShadow: theme.shadows[4],
-  },
-}));
 
 function Dashboard() {
   const { user } = useContext(AuthContext);
