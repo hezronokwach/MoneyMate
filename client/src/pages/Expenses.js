@@ -161,7 +161,7 @@ function Expenses() {
         if (adjustedBalance < additionalSavings) {
           return {
             isValid: false,
-            errorMessage: `Not enough funds available. You have $${adjustedBalance.toFixed(2)} available, but are trying to save $${additionalSavings.toFixed(2)}.`
+            errorMessage: `Not enough funds available. You have Ksh.${adjustedBalance.toFixed(2)} available, but are trying to save Ksh.${additionalSavings.toFixed(2)}.`
           };
         }
       }
@@ -340,7 +340,7 @@ function Expenses() {
               </Typography>
             </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-              ${summary.totalIncome.toFixed(2)}
+              Ksh.{summary.totalIncome.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Money you've earned
@@ -370,7 +370,7 @@ function Expenses() {
               </Typography>
             </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#f44336' }}>
-              ${summary.totalExpense.toFixed(2)}
+              Ksh.{summary.totalExpense.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Money you've spent
@@ -400,7 +400,7 @@ function Expenses() {
               </Typography>
             </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
-              ${summary.totalSavings.toFixed(2)}
+              Ksh.{summary.totalSavings.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Money you've set aside
@@ -433,7 +433,7 @@ function Expenses() {
               fontWeight: 'bold', 
               color: summary.netBalance >= 0 ? '#9c27b0' : '#f44336' 
             }}>
-              ${summary.netBalance.toFixed(2)}
+              Ksh.{summary.netBalance.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Available to spend
@@ -609,7 +609,7 @@ function Expenses() {
                       '&:hover': { bgcolor: '#f5f5f5' },
                     }}
                   >
-                    <TableCell>${transaction.amount.toFixed(2)}</TableCell>
+                    <TableCell>Ksh.{transaction.amount.toFixed(2)}</TableCell>
                     <TableCell>
                       <span style={{ 
                         color: transaction.type === 'income' ? 'green' : 
