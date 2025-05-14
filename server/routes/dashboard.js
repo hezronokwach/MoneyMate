@@ -71,11 +71,11 @@ router.get('/summary', auth, (req, res) => {
                       return res.status(500).json({ message: 'Server error' });
                     }
                     
-                    // Get total savings
+                    // Get total savings - Using transactions table with type='savings'
                     db.get(
                       `SELECT SUM(amount) as totalSavings 
-                       FROM savings_contributions 
-                       WHERE user_id = ?`,
+                       FROM transactions 
+                       WHERE user_id = ? AND type = 'savings'`,
                       [userId],
                       (err, savingsResult) => {
                         if (err) {
@@ -87,7 +87,7 @@ router.get('/summary', auth, (req, res) => {
                         const totalIncome = incomeResult.totalIncome || 0;
                         const totalExpenses = expenseResult.totalExpenses || 0;
                         const totalSavings = savingsResult.totalSavings || 0;
-                        const netBalance = totalIncome - totalExpenses;
+                        const netBalance = totalIncome - totalExpenses - totalSavings;
                         const monthlyIncome = monthlyIncomeResult.monthlyIncome || 0;
                         const monthlyExpenses = monthlyExpenseResult.monthlyExpenses || 0;
                         

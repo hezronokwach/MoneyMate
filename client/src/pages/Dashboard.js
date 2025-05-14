@@ -155,19 +155,18 @@ function Dashboard() {
       setError('');
 
       try {
-        // Calculate summary data from transactions
+        // Get summary data from transactions/summary endpoint
         try {
-          const transactions = await api.get('/transactions');
-          if (transactions && transactions.length > 0) {
-            const totalIncome = transactions
-              .filter(t => t.type === 'income')
-              .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-            const totalExpenses = transactions
-              .filter(t => t.type === 'expense')
-              .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-            const totalSavings = transactions
-              .filter(t => t.type === 'savings')
-              .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+          const summaryData = await api.get('/transactions/summary');
+          if (summaryData) {
+            // Use the server-calculated net balance
+            const totalIncome = summaryData.total_income || 0;
+            const totalExpenses = summaryData.total_expenses || 0;
+            const totalSavings = summaryData.total_savings || 0;
+            const netBalance = summaryData.net_balance || 0;
+            
+            // Calculate monthly data
+            const transactions = await api.get('/transactions');
             const currentMonth = dayjs().format('YYYY-MM');
             const monthlyIncome = transactions
               .filter(t => t.type === 'income' && dayjs(t.date).format('YYYY-MM') === currentMonth)
@@ -175,18 +174,19 @@ function Dashboard() {
             const monthlyExpenses = transactions
               .filter(t => t.type === 'expense' && dayjs(t.date).format('YYYY-MM') === currentMonth)
               .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+            
             setSummary({
               totalIncome,
               totalExpenses,
               totalSavings,
-              netBalance: totalIncome - totalExpenses,
+              netBalance,
               monthlyIncome,
               monthlyExpenses
             });
             setFinancialTip(generateFinancialTip(summary, budgets));
           }
         } catch (err) {
-          console.error('Error calculating summary data:', err);
+          console.error('Error fetching summary data:', err);
         }
 
         // Fetch budgets
@@ -238,7 +238,7 @@ function Dashboard() {
 
   // Generate a personalized financial tip
   const generateFinancialTip = (summaryData, budgetsData) => {
-    if (summaryData.totalExpenses > summaryData.totalIncome) {
+    if (summaryData.netBalance < 0) {
       return "Your expenses are exceeding your income. Consider reviewing your budget to find areas where you can cut back.";
     }
     if (summaryData.totalSavings < summaryData.totalIncome * 0.1) {
@@ -621,7 +621,7 @@ function Dashboard() {
                                 </Box>
                               </CardContent>
                               <CardActions>
-                                <Button size="small" onClick={() => navigateTo(`/savings/${goal.id}`)}>
+                                <Button size="small" onClick={() => navigateTo(`/savings`)}>
                                   View Details
                                 </Button>
                               </CardActions>
