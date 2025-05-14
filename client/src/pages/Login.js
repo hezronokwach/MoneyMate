@@ -14,22 +14,17 @@ const SectionTitle = styled(Box)(({ theme, bgcolor = '#1976d2' }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-function Register() {
+function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const { register } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
     try {
-      await register(username, password);
+      await login(username, password);
     } catch (err) {
       setError(err);
     }
@@ -47,7 +42,7 @@ function Register() {
           mb: 4,
         }}
       >
-        Register for MoneyMate
+        Login to MoneyMate
       </Typography>
       <Paper
         sx={{
@@ -61,7 +56,7 @@ function Register() {
       >
         <SectionTitle bgcolor="#1976d2">
           <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
-            Create Your Account
+            Sign In
           </Typography>
         </SectionTitle>
         <Box sx={{ p: 3 }}>
@@ -91,16 +86,6 @@ function Register() {
               onChange={(e) => setPassword(e.target.value)}
               variant="outlined"
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Confirm Password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              variant="outlined"
-            />
             <Button
               type="submit"
               fullWidth
@@ -115,19 +100,19 @@ function Register() {
               }}
               size="large"
             >
-              Register
+              Login
             </Button>
             <Typography sx={{ textAlign: 'center', color: 'text.secondary' }}>
-              Already have an account?{' '}
+              Don’t have an account?{' '}
               <Link
-                to="/login"
+                to="/register"
                 style={{
                   color: '#1976d2',
                   textDecoration: 'none',
                   fontWeight: 'medium',
                 }}
               >
-                Login
+                Register
               </Link>
             </Typography>
           </Box>
@@ -137,4 +122,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default Login;

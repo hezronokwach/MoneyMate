@@ -648,9 +648,11 @@ function Dashboard() {
 
         <Fade in timeout={1100}>
           <Box sx={{ mt: 4 }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 'medium', textAlign: 'center' }}>
-              Quick Actions
-            </Typography>
+          <SectionTitle bgcolor="#1976d2">
+      <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+        Quick Actions
+      </Typography>
+    </SectionTitle>
             <Grid container spacing={2} justifyContent="center">
               <Grid item xs={6} sm={4} md={2}>
                 <ActionCard
