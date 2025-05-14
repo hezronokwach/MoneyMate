@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -563,7 +562,7 @@ function Dashboard() {
                     </Button>
                   </Box>
                 ) : (
-                  <Box sx={{ overflowX: 'auto' }}>
+                  <Box sx={{ overflowX: 'auto' }} >
                     <Grid container spacing={2} justifyContent="center">
                       {savingsGoals.map((goal) => {
                         const targetAmount = parseFloat(goal.target_amount) || 0;
@@ -573,7 +572,9 @@ function Dashboard() {
                         return (
                           <Grid item xs={12} sm={6} md={4} key={goal.id}>
                             <Card sx={{ 
-                              height: '100%',
+                              height: '100%',  // Keep full height
+                              display: 'flex',
+                              flexDirection: 'column',
                               boxShadow: 3,
                               transition: 'transform 0.2s',
                               '&:hover': { transform: 'scale(1.02)' }
@@ -590,37 +591,45 @@ function Dashboard() {
                                 </Typography>
                                 <SavingsIcon sx={{ color: 'white' }} />
                               </Box>
-                              <CardContent>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                  <Typography variant="body2" color="text.secondary">
-                                    Target: {formatCurrency(targetAmount)}
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary">
-                                    {formatDate(goal.deadline)}
-                                  </Typography>
-                                </Box>
-                                <Box sx={{ mb: 1 }}>
-                                  <LinearProgress
-                                    variant="determinate"
-                                    value={progress}
-                                    sx={{ height: 8, borderRadius: 4 }}
-                                    color={progress >= 100 ? 'success' : 'primary'}
-                                  />
-                                </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                  <Typography variant="body2">
-                                    {formatCurrency(currentAmount)}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    fontWeight="bold"
-                                    color={progress >= 100 ? '#4caf50' : '#1976d2'}
-                                  >
-                                    {progress}%
-                                  </Typography>
+                              <CardContent sx={{ 
+                                flexGrow: 1,  // Allow content to grow
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                p: 2  // Reduce padding
+                              }}>
+                                <Box>
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                      Target: {formatCurrency(targetAmount)}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                      {formatDate(goal.deadline)}
+                                    </Typography>
+                                  </Box>
+                                  <Box sx={{ mb: 1 }}>
+                                    <LinearProgress
+                                      variant="determinate"
+                                      value={progress}
+                                      sx={{ height: 8, borderRadius: 4 }}
+                                      color={progress >= 100 ? 'success' : 'primary'}
+                                    />
+                                  </Box>
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Typography variant="body2">
+                                      {formatCurrency(currentAmount)}
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      fontWeight="bold"
+                                      color={progress >= 100 ? '#4caf50' : '#1976d2'}
+                                    >
+                                      {progress}%
+                                    </Typography>
+                                  </Box>
                                 </Box>
                               </CardContent>
-                              <CardActions>
+                              <CardActions sx={{ p: 1 }}>  {/* Reduce padding */}
                                 <Button size="small" onClick={() => navigateTo(`/savings`)}>
                                   View Details
                                 </Button>
