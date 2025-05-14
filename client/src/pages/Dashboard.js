@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardActions,
-  Divider,
   LinearProgress,
   Table,
   TableBody,
@@ -18,12 +17,9 @@ import {
   TableHead,
   TableRow,
   Chip,
-  IconButton,
-  Tooltip,
   CircularProgress,
   Alert,
   Container,
-  Stack,
   Grid,
   Fade
 } from '@mui/material';
@@ -116,17 +112,6 @@ const sectionColors = {
   summary: '#1976d2'
 };
 
-const QuickActionButton = styled(Button)(({ theme }) => ({
-  padding: theme.spacing(1.5),
-  borderRadius: theme.shape.borderRadius,
-  fontWeight: 'bold',
-  textTransform: 'none',
-  boxShadow: theme.shadows[2],
-  '&:hover': {
-    boxShadow: theme.shadows[4],
-  },
-}));
-
 function Dashboard() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -163,7 +148,7 @@ function Dashboard() {
             const totalExpenses = summaryData.total_expenses || 0;
             const totalSavings = summaryData.total_savings || 0;
             const netBalance = summaryData.net_balance || 0;
-            
+
             // Calculate monthly data
             const transactions = await api.get('/transactions');
             const currentMonth = dayjs().format('YYYY-MM');
@@ -173,7 +158,7 @@ function Dashboard() {
             const monthlyExpenses = transactions
               .filter(t => t.type === 'expense' && dayjs(t.date).format('YYYY-MM') === currentMonth)
               .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-            
+
             setSummary({
               totalIncome,
               totalExpenses,
@@ -571,7 +556,7 @@ function Dashboard() {
 
                         return (
                           <Grid item xs={12} sm={6} md={4} key={goal.id}>
-                            <Card sx={{ 
+                            <Card sx={{
                               height: '100%',  // Keep full height
                               display: 'flex',
                               flexDirection: 'column',
@@ -579,9 +564,9 @@ function Dashboard() {
                               transition: 'transform 0.2s',
                               '&:hover': { transform: 'scale(1.02)' }
                             }}>
-                              <Box sx={{ 
-                                bgcolor: '#ff9800', 
-                                p: 1.5, 
+                              <Box sx={{
+                                bgcolor: '#ff9800',
+                                p: 1.5,
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
@@ -591,7 +576,7 @@ function Dashboard() {
                                 </Typography>
                                 <SavingsIcon sx={{ color: 'white' }} />
                               </Box>
-                              <CardContent sx={{ 
+                              <CardContent sx={{
                                 flexGrow: 1,  // Allow content to grow
                                 display: 'flex',
                                 flexDirection: 'column',
@@ -648,9 +633,11 @@ function Dashboard() {
 
         <Fade in timeout={1100}>
           <Box sx={{ mt: 4 }}>
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 'medium', textAlign: 'center' }}>
-              Quick Actions
-            </Typography>
+            <SectionTitle bgcolor="#1976d2">
+              <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                Quick Actions
+              </Typography>
+            </SectionTitle>
             <Grid container spacing={2} justifyContent="center">
               <Grid item xs={6} sm={4} md={2}>
                 <ActionCard
