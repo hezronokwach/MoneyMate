@@ -1,7 +1,7 @@
 const api = {
   async get(url) {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${process.env.REACT_APP_API_URL}${url}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api${url}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ const api = {
 
   async post(url, data) {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${process.env.REACT_APP_API_URL}${url}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api${url}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ const api = {
 
   async put(url, data) {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${process.env.REACT_APP_API_URL}${url}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api${url}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ const api = {
 
   async delete(url) {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${process.env.REACT_APP_API_URL}${url}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api${url}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
