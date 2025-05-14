@@ -31,6 +31,23 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import api from '../utils/api';
+import { styled } from '@mui/material/styles';
+import {
+  AccountBalance as AccountBalanceIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Savings as SavingsIcon,
+} from '@mui/icons-material';
+
+// Styled components for card titles
+const SectionTitle = styled(Box)(({ theme, bgcolor = '#1976d2' }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(1.5, 2),
+  borderRadius: `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0 0`,
+  backgroundColor: bgcolor,
+  marginBottom: theme.spacing(2),
+}));
 
 // Expenses page to manage transactions
 function Expenses() {
@@ -278,32 +295,32 @@ function Expenses() {
       {/* Summary Statistics */}
       <Box
         sx={{
-          maxWidth: 1000,
+          maxWidth: 1200,
           mx: 'auto',
           mb: 4,
-          p: 3,
           bgcolor: '#ffffff',
           borderRadius: 2,
-          boxShadow: 2
+          boxShadow: 2,
+          overflow: 'hidden',
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            color: '#1976d2',
-            mb: 3,
-            fontWeight: 'medium',
-            textAlign: 'center'
-          }}
-        >
-          Financial Summary
-        </Typography>
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            Financial Summary
+          </Typography>
+        </SectionTitle>
 
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 2 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' }, 
+          justifyContent: 'space-between', 
+          gap: 2, 
+          p: 3 
+        }}>
           {/* Total Income */}
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#e3f2fd',
               borderRadius: 2,
@@ -311,12 +328,17 @@ function Expenses() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #bbdefb',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Total Income
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <TrendingUpIcon sx={{ color: '#1976d2', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#1976d2' }}>
+                Total Income
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
               ${summary.totalIncome.toFixed(2)}
             </Typography>
@@ -328,7 +350,7 @@ function Expenses() {
           {/* Total Expenses */}
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#ffebee',
               borderRadius: 2,
@@ -336,12 +358,17 @@ function Expenses() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #ffcdd2',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Total Expenses
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <TrendingDownIcon sx={{ color: '#f44336', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#f44336' }}>
+                Total Expenses
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#f44336' }}>
               ${summary.totalExpense.toFixed(2)}
             </Typography>
@@ -353,7 +380,7 @@ function Expenses() {
           {/* Total Savings */}
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#e8f5e9',
               borderRadius: 2,
@@ -361,12 +388,17 @@ function Expenses() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #c8e6c9',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Total Savings
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <SavingsIcon sx={{ color: '#4caf50', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#4caf50' }}>
+                Total Savings
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
               ${summary.totalSavings.toFixed(2)}
             </Typography>
@@ -378,7 +410,7 @@ function Expenses() {
           {/* Net Balance */}
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#f3e5f5',
               borderRadius: 2,
@@ -386,12 +418,17 @@ function Expenses() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #e1bee7',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Net Balance
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <AccountBalanceIcon sx={{ color: '#9c27b0', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#9c27b0' }}>
+                Net Balance
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ 
               fontWeight: 'bold', 
               color: summary.netBalance >= 0 ? '#9c27b0' : '#f44336' 
@@ -418,123 +455,132 @@ function Expenses() {
         onSubmit={handleSubmit}
         sx={{
           mb: 4,
-          p: 3,
           bgcolor: '#ffffff',
           borderRadius: 2,
           boxShadow: 2,
           maxWidth: 800,
           mx: 'auto',
+          overflow: 'hidden',
         }}
       >
-        <Typography variant="h6" sx={{ color: '#1976d2', mb: 2, fontWeight: 'medium' }}>
-          {editId ? 'Edit Transaction' : 'Add Transaction'}
-        </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          <TextField
-            label="Amount"
-            name="amount"
-            type="number"
-            value={formData.amount}
-            onChange={handleInputChange}
-            required
-            sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}
-            variant="outlined"
-          />
-          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}>
-            <InputLabel>Type</InputLabel>
-            <Select
-              name="type"
-              value={formData.type}
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            {editId ? 'Edit Transaction' : 'Add Transaction'}
+          </Typography>
+        </SectionTitle>
+        
+        <Box sx={{ p: 3 }}>
+          {/* Top row with all fields except description */}
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            gap: 2, 
+            mb: 2 
+          }}>
+            <TextField
+              label="Amount"
+              name="amount"
+              type="number"
+              value={formData.amount}
               onChange={handleInputChange}
               required
-            >
-              <MenuItem value="income">Income</MenuItem>
-              <MenuItem value="expense">Expense</MenuItem>
-              <MenuItem value="savings">Savings</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}>
-            <InputLabel>Category</InputLabel>
-            <Select
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              required={formData.type !== ''}
-              disabled={!formData.type}
-            >
-              {filteredCategories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.name}>
-                  {cat.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Date"
-              value={formData.date}
-              onChange={handleDateChange}
-              slotProps={{
-                textField: {
-                  required: true,
-                  sx: { flex: { xs: '1 1 100%', sm: '1 1 180px' } },
-                  variant: 'outlined',
-                },
-              }}
+              sx={{ flex: 1 }}
+              variant="outlined"
             />
-          </LocalizationProvider>
+            <FormControl sx={{ flex: 1 }}>
+              <InputLabel>Type</InputLabel>
+              <Select
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                required
+              >
+                <MenuItem value="income">Income</MenuItem>
+                <MenuItem value="expense">Expense</MenuItem>
+                <MenuItem value="savings">Savings</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl sx={{ flex: 1 }}>
+              <InputLabel>Category</InputLabel>
+              <Select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                required={formData.type !== ''}
+                disabled={!formData.type}
+              >
+                {filteredCategories.map((cat) => (
+                  <MenuItem key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Date"
+                value={formData.date}
+                onChange={handleDateChange}
+                slotProps={{
+                  textField: {
+                    required: true,
+                    sx: { flex: 1 },
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </LocalizationProvider>
+          </Box>
+          
+          {/* Description field at the bottom */}
           <TextField
             label="Description"
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            sx={{ flex: '1 1 100%' }}
+            sx={{ width: '100%', mb: 2 }}
             variant="outlined"
           />
-        </Box>
-        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{
-              backgroundColor: '#1976d2',
-              '&:hover': { backgroundColor: '#0d47a1' },
-              borderRadius: 1,
-              px: 3,
-            }}
-          >
-            {editId ? 'Update Transaction' : 'Add Transaction'}
-          </Button>
-          {editId && (
+          
+          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
             <Button
-              variant="outlined"
-              onClick={resetForm}
+              type="submit"
+              variant="contained"
               sx={{
-                borderColor: '#1976d2',
-                color: '#1976d2',
+                backgroundColor: '#1976d2',
+                '&:hover': { backgroundColor: '#0d47a1' },
                 borderRadius: 1,
                 px: 3,
               }}
             >
-              Cancel
+              {editId ? 'Update Transaction' : 'Add Transaction'}
             </Button>
-          )}
+            {editId && (
+              <Button
+                variant="outlined"
+                onClick={resetForm}
+                sx={{
+                  borderColor: '#1976d2',
+                  color: '#1976d2',
+                  borderRadius: 1,
+                  px: 3,
+                }}
+              >
+                Cancel
+              </Button>
+            )}
+          </Box>
         </Box>
       </Box>
 
       {/* Transactions Table */}
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-        <Typography
-          variant="h5"
-          sx={{
-            color: '#1976d2',
-            fontWeight: 'bold',
-            mb: 2,
-            textAlign: 'center',
-          }}
-        >
-          Recent Transactions
-        </Typography>
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            Recent Transactions
+          </Typography>
+        </SectionTitle>
+        
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
