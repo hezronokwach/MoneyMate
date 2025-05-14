@@ -316,7 +316,7 @@ function Budgets() {
               </Typography>
             </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-              ${summary.totalBudgeted.toFixed(2)}
+              Ksh.{summary.totalBudgeted.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Planned spending
@@ -349,7 +349,7 @@ function Budgets() {
               fontWeight: 'bold', 
               color: summary.totalRemaining >= 0 ? '#4caf50' : '#f44336' 
             }}>
-              ${summary.totalRemaining.toFixed(2)}
+              Ksh.{summary.totalRemaining.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Budget left to spend
@@ -581,7 +581,7 @@ function Budgets() {
                           
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                             <Typography variant="body2" color="text.secondary">
-                              Budget: ${budget.amount.toFixed(2)}
+                              Budget: Ksh.{budget.amount.toFixed(2)}
                             </Typography>
                             <Typography 
                               variant="body2" 
@@ -594,12 +594,12 @@ function Budgets() {
                               {isOverBudget ? (
                                 <>
                                   <TrendingUp sx={{ fontSize: 16, mr: 0.5 }} />
-                                  Over by ${Math.abs(remaining).toFixed(2)}
+                                  Over by Ksh.{Math.abs(remaining).toFixed(2)}
                                 </>
                               ) : (
                                 <>
                                   <TrendingDown sx={{ fontSize: 16, mr: 0.5 }} />
-                                  Under by ${remaining.toFixed(2)}
+                                  Under by Ksh.{remaining.toFixed(2)}
                                 </>
                               )}
                             </Typography>
@@ -633,10 +633,10 @@ function Budgets() {
                             
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                               <Typography variant="body2" color="text.secondary">
-                                Spent: ${spent.toFixed(2)}
+                                Spent: Ksh.{spent.toFixed(2)}
                               </Typography>
                               <Typography variant="body2" color="text.secondary">
-                                Remaining: ${remaining.toFixed(2)}
+                                Remaining: Ksh.{remaining.toFixed(2)}
                               </Typography>
                             </Box>
                           </Box>
@@ -694,10 +694,10 @@ function Budgets() {
                     >
                       <TableCell>{budget.category}</TableCell>
                       <TableCell>{budget.month}</TableCell>
-                      <TableCell>${budget.amount.toFixed(2)}</TableCell>
-                      <TableCell>${spent.toFixed(2)}</TableCell>
+                      <TableCell>Ksh.{budget.amount.toFixed(2)}</TableCell>
+                      <TableCell>Ksh.{spent.toFixed(2)}</TableCell>
                       <TableCell sx={{ color: remaining >= 0 ? 'green' : 'red' }}>
-                        ${remaining.toFixed(2)}
+                        Ksh.{remaining.toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <Button
