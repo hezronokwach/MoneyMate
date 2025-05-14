@@ -25,13 +25,26 @@ import {
   MenuItem,
   Chip,
 } from '@mui/material';
+import {  
+  Savings as SavingsIcon,
+} from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { styled } from '@mui/material/styles';
 import dayjs from 'dayjs';
 import api from '../utils/api';
 
-// Savings Goals page to manage savings goals
+// Styled components for card titles
+const SectionTitle = styled(Box)(({ theme, bgcolor = '#1976d2' }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(1.5, 2),
+  borderRadius: `${theme.shape.borderRadius}px ${theme.shape.borderRadius}px 0 0`,
+  backgroundColor: bgcolor,
+  marginBottom: theme.spacing(2),
+}));
+
 function SavingsGoals() {
   const [goals, setGoals] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -47,8 +60,6 @@ function SavingsGoals() {
   const [editId, setEditId] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-
-  // New state for achieve goal functionality
   const [achieveDialogOpen, setAchieveDialogOpen] = useState(false);
   const [achieveGoalId, setAchieveGoalId] = useState(null);
   const [achieveGoalData, setAchieveGoalData] = useState(null);
@@ -65,29 +76,17 @@ function SavingsGoals() {
     fetchTotalSavings();
   }, []);
 
-  // Fetch total savings from transactions
   const fetchTotalSavings = async () => {
     try {
-      // Get all transactions with type 'savings'
       const transactions = await api.get('/transactions?type=savings');
-      
-      // Log the transactions to help debug
-      console.log('Savings transactions:', transactions);
-      
-      // Verify each transaction is actually a savings type
       const validSavingsTransactions = transactions.filter(t => t.type === 'savings');
-      
-      // Calculate total savings (sum of all savings transactions)
       const total = validSavingsTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
-      
-      // Ensure we don't show negative total savings (in case there's an accounting error)
       setTotalSavings(Math.max(0, total));
     } catch (err) {
       console.error('Failed to fetch total savings:', err);
     }
   };
 
-  // Fetch savings goals from backend
   const fetchGoals = async () => {
     setLoading(true);
     setError('');
@@ -101,11 +100,9 @@ function SavingsGoals() {
     }
   };
 
-  // Fetch categories for expense selection
   const fetchCategories = async () => {
     try {
       const data = await api.get('/categories');
-      // Filter to only include expense categories
       const expenseCategories = data.filter(cat => cat.type === 'expense' || cat.type === undefined);
       setCategories(expenseCategories);
     } catch (err) {
@@ -113,30 +110,25 @@ function SavingsGoals() {
     }
   };
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle achieve form input changes
   const handleAchieveInputChange = (e) => {
     const { name, value } = e.target;
     setAchieveFormData({ ...achieveFormData, [name]: value });
   };
 
-  // Handle date change
   const handleDateChange = (date) => {
     setFormData({ ...formData, deadline: date });
   };
 
-  // Validate and submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    // Validate inputs
     if (!formData.name) {
       setError('Name is required');
       return;
@@ -166,14 +158,13 @@ function SavingsGoals() {
       }
       fetchGoals();
       resetForm();
-      setTimeout(() => setSuccess(''), 2000); // Clear success message
-      fetchTotalSavings(); // Refresh total savings after adding/updating a goal
+      setTimeout(() => setSuccess(''), 2000);
+      fetchTotalSavings();
     } catch (err) {
       setError(err.message || 'Failed to save savings goal');
     }
   };
 
-  // Start editing a goal
   const handleEdit = (goal) => {
     setFormData({
       name: goal.name,
@@ -183,19 +174,16 @@ function SavingsGoals() {
     setEditId(goal.id);
   };
 
-  // Open delete confirmation dialog
   const handleDeleteOpen = (id) => {
     setDeleteId(id);
     setDeleteDialogOpen(true);
   };
 
-  // Close delete dialog
   const handleDeleteClose = () => {
     setDeleteDialogOpen(false);
     setDeleteId(null);
   };
 
-  // Confirm deletion
   const handleDelete = async () => {
     try {
       await api.delete(`/savings-goals/${deleteId}`);
@@ -203,13 +191,12 @@ function SavingsGoals() {
       fetchGoals();
       handleDeleteClose();
       setTimeout(() => setSuccess(''), 2000);
-      fetchTotalSavings(); // Refresh total savings after deleting a goal
+      fetchTotalSavings();
     } catch (err) {
       setError(err.message || 'Failed to delete savings goal');
     }
   };
 
-  // Open achieve goal dialog
   const handleAchieveOpen = (goal) => {
     setAchieveGoalId(goal.id);
     setAchieveGoalData(goal);
@@ -221,7 +208,6 @@ function SavingsGoals() {
     setAchieveDialogOpen(true);
   };
 
-  // Close achieve goal dialog
   const handleAchieveClose = () => {
     setAchieveDialogOpen(false);
     setAchieveGoalId(null);
@@ -233,7 +219,6 @@ function SavingsGoals() {
     setAchieveError('');
   };
 
-  // Confirm achieve goal
   const handleAchieveGoal = async () => {
     if (!achieveFormData.expenseCategory) {
       setAchieveError('Please select an expense category');
@@ -246,9 +231,8 @@ function SavingsGoals() {
       fetchGoals();
       handleAchieveClose();
       setTimeout(() => setSuccess(''), 2000);
-      fetchTotalSavings(); // Refresh total savings after achieving a goal
+      fetchTotalSavings();
     } catch (err) {
-      // Check if this is a shortfall error
       if (err.message && err.message.includes('Not enough savings')) {
         setAchieveError(err.message);
       } else {
@@ -258,7 +242,6 @@ function SavingsGoals() {
     }
   };
 
-  // Reset form after submission
   const resetForm = () => {
     setFormData({
       name: '',
@@ -268,7 +251,6 @@ function SavingsGoals() {
     setEditId(null);
   };
 
-  // Calculate days remaining until deadline
   const getDaysRemaining = (deadline) => {
     const today = dayjs();
     const deadlineDate = dayjs(deadline);
@@ -276,13 +258,11 @@ function SavingsGoals() {
     return daysRemaining >= 0 ? daysRemaining : 0;
   };
 
-  // Check if goal has enough savings to achieve
   const hasEnoughSavings = (goal) => {
     return goal.current_savings >= goal.target_amount;
   };
 
   return (
-
     <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1400, mx: 'auto', bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       {/* Header */}
       <Typography
@@ -297,35 +277,34 @@ function SavingsGoals() {
       >
         Savings Goals
       </Typography>
+
       {/* Savings Summary Section */}
       <Box
         sx={{
-          maxWidth: 1000,
+          maxWidth: 1200,
           mx: 'auto',
           mb: 4,
-          p: 3,
           bgcolor: '#ffffff',
           borderRadius: 2,
-          boxShadow: 2
+          boxShadow: 2,
+          overflow: 'hidden',
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            color: '#1976d2',
-            mb: 3,
-            fontWeight: 'medium',
-            textAlign: 'center'
-          }}
-        >
-          Savings Summary
-        </Typography>
-
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 2 }}>
-          {/* Total Savings */}
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            Savings Summary
+          </Typography>
+        </SectionTitle>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' }, 
+          justifyContent: 'space-between', 
+          gap: 2, 
+          p: 3 
+        }}>
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#e3f2fd',
               borderRadius: 2,
@@ -333,12 +312,17 @@ function SavingsGoals() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #bbdefb',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Total Savings
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <SavingsIcon sx={{ color: '#1976d2', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#1976d2' }}>
+                Total Savings
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
               Ksh. {totalSavings.toFixed(2)}
             </Typography>
@@ -346,11 +330,9 @@ function SavingsGoals() {
               Total money you've saved
             </Typography>
           </Box>
-
-          {/* Allocated Savings */}
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#fff8e1',
               borderRadius: 2,
@@ -358,12 +340,17 @@ function SavingsGoals() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #ffecb3',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Allocated to Goals
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <SavingsIcon sx={{ color: '#ff9800', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#ff9800' }}>
+                Allocated to Goals
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
               Ksh. {goals.filter(goal => !goal.achieved).reduce((total, goal) => total + Math.min(goal.current_savings, goal.target_amount), 0).toFixed(2)}
             </Typography>
@@ -371,11 +358,9 @@ function SavingsGoals() {
               Savings assigned to active goals
             </Typography>
           </Box>
-
-          {/* Available Savings */}
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#e8f5e9',
               borderRadius: 2,
@@ -383,25 +368,27 @@ function SavingsGoals() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #c8e6c9',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Available Savings
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <SavingsIcon sx={{ color: '#4caf50', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#4caf50' }}>
+                Available Savings
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#4caf50' }}>
-              Ksh. {Math.max(0, totalSavings - goals.filter(goal => !goal.achieved).reduce((total, goal) => 
-                total + Math.min(goal.current_savings, goal.target_amount), 0)).toFixed(2)}
+              Ksh. {Math.max(0, totalSavings - goals.filter(goal => !goal.achieved).reduce((total, goal) => total + Math.min(goal.current_savings, goal.target_amount), 0)).toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Savings not allocated to any goal
             </Typography>
           </Box>
-
-          {/* Achievement Rate */}
           <Box
             sx={{
-              flex: '1 1 200px',
+              flex: 1,
               p: 2,
               bgcolor: '#f3e5f5',
               borderRadius: 2,
@@ -409,19 +396,22 @@ function SavingsGoals() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              border: '1px solid #e1bee7',
+              minWidth: { xs: '100%', md: '0' },
             }}
           >
-            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              Goals Achieved
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <SavingsIcon sx={{ color: '#9c27b0', mr: 1 }} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', color: '#9c27b0' }}>
+                Goals Achieved
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#9c27b0' }}>
               {goals.filter(goal => goal.achieved).length} / {goals.length}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {goals.length > 0
-                ? `${Math.round((goals.filter(goal => goal.achieved).length / goals.length) * 100)}% completion rate`
-                : 'No goals created yet'}
+              {goals.length > 0 ? `${Math.round((goals.filter(goal => goal.achieved).length / goals.length) * 100)}% completion rate` : 'No goals created yet'}
             </Typography>
           </Box>
         </Box>
@@ -445,95 +435,95 @@ function SavingsGoals() {
         onSubmit={handleSubmit}
         sx={{
           mb: 4,
-          p: 3,
           bgcolor: '#ffffff',
           borderRadius: 2,
           boxShadow: 2,
           maxWidth: 800,
           mx: 'auto',
+          overflow: 'hidden',
         }}
       >
-        <Typography variant="h6" sx={{ color: '#1976d2', mb: 2, fontWeight: 'medium' }}>
-          {editId ? 'Edit Savings Goal' : 'Add Savings Goal'}
-        </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-          <TextField
-            label="Name"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-            sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}
-            variant="outlined"
-          />
-          <TextField
-            label="Target Amount"
-            name="target_amount"
-            type="number"
-            value={formData.target_amount}
-            onChange={handleInputChange}
-            required
-            sx={{ flex: { xs: '1 1 100%', sm: '1 1 180px' } }}
-            variant="outlined"
-          />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Deadline"
-              value={formData.deadline}
-              onChange={handleDateChange}
-              slotProps={{
-                textField: {
-                  required: true,
-                  sx: { flex: { xs: '1 1 100%', sm: '1 1 180px' } },
-                  variant: 'outlined',
-                },
-              }}
-            />
-          </LocalizationProvider>
-        </Box>
-        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{
-              backgroundColor: '#1976d2',
-              '&:hover': { backgroundColor: '#0d47a1' },
-              borderRadius: 1,
-              px: 3,
-            }}
-          >
-            {editId ? 'Update Goal' : 'Add Goal'}
-          </Button>
-          {editId && (
-            <Button
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            {editId ? 'Edit Savings Goal' : 'Add Savings Goal'}
+          </Typography>
+        </SectionTitle>
+        <Box sx={{ p: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 2 }}>
+            <TextField
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              sx={{ flex: 1 }}
               variant="outlined"
-              onClick={resetForm}
+            />
+            <TextField
+              label="Target Amount"
+              name="target_amount"
+              type="number"
+              value={formData.target_amount}
+              onChange={handleInputChange}
+              required
+              sx={{ flex: 1 }}
+              variant="outlined"
+            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Deadline"
+                value={formData.deadline}
+                onChange={handleDateChange}
+                slotProps={{
+                  textField: {
+                    required: true,
+                    sx: { flex: 1 },
+                    variant: 'outlined',
+                  },
+                }}
+              />
+            </LocalizationProvider>
+          </Box>
+          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+            <Button
+              type="submit"
+              variant="contained"
               sx={{
-                borderColor: '#1976d2',
-                color: '#1976d2',
+                backgroundColor: '#1976d2',
+                '&:hover': { backgroundColor: '#0d47a1' },
                 borderRadius: 1,
                 px: 3,
               }}
+              size="large"
             >
-              Cancel
+              {editId ? 'Update Goal' : 'Add Goal'}
             </Button>
-          )}
+            {editId && (
+              <Button
+                variant="outlined"
+                onClick={resetForm}
+                sx={{
+                  borderColor: '#1976d2',
+                  color: '#1976d2',
+                  borderRadius: 1,
+                  px: 3,
+                }}
+                size="large"
+              >
+                Cancel
+              </Button>
+            )}
+          </Box>
         </Box>
       </Box>
 
       {/* Savings Goals Table */}
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-        <Typography
-          variant="h5"
-          sx={{
-            color: '#1976d2',
-            fontWeight: 'bold',
-            mb: 2,
-            textAlign: 'center',
-          }}
-        >
-          Your Savings Goals
-        </Typography>
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            Your Savings Goals
+          </Typography>
+        </SectionTitle>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
@@ -545,10 +535,7 @@ function SavingsGoals() {
             </Typography>
           </Paper>
         ) : (
-          <TableContainer
-            component={Paper}
-            sx={{ boxShadow: 2, borderRadius: 2 }}
-          >
+          <TableContainer component={Paper} sx={{ boxShadow: 2, borderRadius: 2 }}>
             <Table>
               <TableHead>
                 <TableRow sx={{ bgcolor: '#1976d2' }}>
@@ -600,8 +587,8 @@ function SavingsGoals() {
                               '& .MuiLinearProgress-bar': {
                                 bgcolor: isAchieved ? '#4caf50' :
                                   progress >= 100 ? '#4caf50' :
-                                    daysRemaining < 7 && progress < 80 ? '#ff9800' : '#1976d2'
-                              }
+                                    daysRemaining < 7 && progress < 80 ? '#ff9800' : '#1976d2',
+                              },
                             }}
                           />
                           <Typography>{progress.toFixed(0)}%</Typography>
@@ -609,26 +596,11 @@ function SavingsGoals() {
                       </TableCell>
                       <TableCell>
                         {isAchieved ? (
-                          <Chip
-                            label="Achieved"
-                            color="success"
-                            size="small"
-                            sx={{ fontWeight: 'bold' }}
-                          />
+                          <span style={{ color: 'green' }}>Achieved</span>
                         ) : canAchieve ? (
-                          <Chip
-                            label="Ready to Achieve"
-                            color="primary"
-                            size="small"
-                            sx={{ fontWeight: 'bold' }}
-                          />
+                          <span style={{ color: '#1976d2' }}>Ready to Achieve</span>
                         ) : (
-                          <Chip
-                            label="In Progress"
-                            color="info"
-                            variant="outlined"
-                            size="small"
-                          />
+                          <span style={{ color: '#0288d1' }}>In Progress</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -650,12 +622,13 @@ function SavingsGoals() {
                             </Button>
                             {goal.current_savings > 0 && (
                               <Button
-                                variant="contained"
-                                color="success"
+                                variant="outlined"
                                 onClick={() => handleAchieveOpen(goal)}
                                 sx={{
                                   mr: 1,
                                   mb: 1,
+                                  borderColor: '#4caf50',
+                                  color: '#4caf50',
                                   borderRadius: 1,
                                 }}
                                 size="small"
@@ -698,25 +671,29 @@ function SavingsGoals() {
       </Box>
 
       {/* Savings Tips */}
-      <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, p: 3, bgcolor: '#e3f2fd', borderRadius: 2, boxShadow: 1 }}>
-        <Typography variant="h6" sx={{ color: '#1976d2', mb: 2 }}>
-          Savings Tips for Students
-        </Typography>
-        <Typography variant="body1" paragraph>
-          • Set realistic goals based on your income and expenses
-        </Typography>
-        <Typography variant="body1" paragraph>
-          • Save small amounts regularly rather than large amounts occasionally
-        </Typography>
-        <Typography variant="body1" paragraph>
-          • Track your progress to stay motivated
-        </Typography>
-        <Typography variant="body1" paragraph>
-          • Use the "Savings" transaction type in the Expenses page to record money you've set aside
-        </Typography>
-        <Typography variant="body1">
-          • When you spend your savings, use the "Achieve Goal" button to record the expense
-        </Typography>
+      <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, bgcolor: '#ffffff', borderRadius: 2, boxShadow: 2, overflow: 'hidden' }}>
+        <SectionTitle bgcolor="#1976d2">
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+            Savings Tips for Students
+          </Typography>
+        </SectionTitle>
+        <Box sx={{ p: 3 }}>
+          <Typography variant="body1" paragraph>
+            • Set realistic goals based on your income and expenses
+          </Typography>
+          <Typography variant="body1" paragraph>
+            • Save small amounts regularly rather than large amounts occasionally
+          </Typography>
+          <Typography variant="body1" paragraph>
+            • Track your progress to stay motivated
+          </Typography>
+          <Typography variant="body1" paragraph>
+            • Use the "Savings" transaction type in the Expenses page to record money you've set aside
+          </Typography>
+          <Typography variant="body1">
+            • When you spend your savings, use the "Achieve Goal" button to record the expense
+          </Typography>
+        </Box>
       </Box>
 
       {/* Delete Confirmation Dialog */}
@@ -733,17 +710,10 @@ function SavingsGoals() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={handleDeleteClose}
-            sx={{ color: '#1976d2' }}
-          >
+          <Button onClick={handleDeleteClose} sx={{ color: '#1976d2' }}>
             Cancel
           </Button>
-          <Button
-            onClick={handleDelete}
-            color="error"
-            sx={{ borderRadius: 1 }}
-          >
+          <Button onClick={handleDelete} color="error" sx={{ borderRadius: 1 }}>
             Delete
           </Button>
         </DialogActions>
@@ -772,7 +742,6 @@ function SavingsGoals() {
               </Box>
             </>
           )}
-
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="expense-category-label">Expense Category</InputLabel>
             <Select
@@ -790,7 +759,6 @@ function SavingsGoals() {
               ))}
             </Select>
           </FormControl>
-
           <TextField
             fullWidth
             label="Description"
@@ -808,8 +776,11 @@ function SavingsGoals() {
           <Button
             onClick={handleAchieveGoal}
             variant="contained"
-            color="success"
-            sx={{ borderRadius: 1 }}
+            sx={{
+              backgroundColor: '#4caf50',
+              '&:hover': { backgroundColor: '#388e3c' },
+              borderRadius: 1,
+            }}
             disabled={!!achieveError}
           >
             Achieve Goal
