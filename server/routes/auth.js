@@ -22,10 +22,8 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Username already exists' });
       }
 
-      // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert user
       db.run(
         'INSERT INTO users (username, password) VALUES (?, ?)',
         [username, hashedPassword],
@@ -35,14 +33,12 @@ router.post('/register', async (req, res) => {
             return res.status(500).json({ message: 'Server error' });
           }
 
-          // Seed categories for the new user
           seedCategories(this.lastID, (seedErr) => {
             if (seedErr) {
               console.error('Error seeding categories for new user:', seedErr);
               return res.status(500).json({ message: 'Server error seeding categories' });
             }
 
-            // Generate JWT
             const token = jwt.sign({ id: this.lastID }, process.env.JWT_SECRET, {
               expiresIn: '1h',
             });

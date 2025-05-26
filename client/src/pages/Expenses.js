@@ -22,9 +22,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Card,
-  CardContent,
-  Grid,
+
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -88,7 +86,9 @@ function Expenses() {
     fetchCategories();
   }, []);
 
-  // Fetch transactions from backend
+  /**
+   * Fetches all transactions from the backend API
+   */
   const fetchTransactions = async () => {
     setLoading(true);
     setError('');
@@ -102,7 +102,9 @@ function Expenses() {
     }
   };
 
-  // Fetch categories from backend
+  /**
+   * Fetches all categories from the backend API
+   */
   const fetchCategories = async () => {
     try {
       const data = await api.get('/categories');
@@ -112,10 +114,13 @@ function Expenses() {
     }
   };
 
-  // Handle form input changes
+  /**
+   * Handles changes to form input fields
+   * @param {Event} e - The input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     // If type changes, reset category to ensure it matches the new type
     if (name === 'type') {
       setFormData({ ...formData, [name]: value, category: '' });
@@ -124,40 +129,39 @@ function Expenses() {
     }
   };
 
-  // Handle date change
+  /**
+   * Handles changes to the date picker
+   * @param {dayjs.Dayjs} date - The selected date
+   */
   const handleDateChange = (date) => {
     setFormData({ ...formData, date });
   };
 
-  // Validate savings transaction
+  /**
+   * Validates savings transactions to ensure sufficient funds
+   * @param {Object} formData - The form data to validate
+   * @returns {Object} Validation result with isValid flag and error message
+   */
   const validateSavingsTransaction = (formData) => {
-    // Only validate for new savings transactions with positive amounts
     if (formData.type === 'savings' && parseFloat(formData.amount) > 0) {
-      // If editing an existing transaction, we need to account for the original amount
       let additionalSavings = parseFloat(formData.amount);
-      
+
       if (editId) {
-        // Find the original transaction
         const originalTransaction = transactions.find(t => t.id === editId);
         if (originalTransaction && originalTransaction.type === 'savings') {
-          // Only count the difference as additional savings
           additionalSavings = parseFloat(formData.amount) - originalTransaction.amount;
         }
       }
-      
-      // Only validate if there's an increase in savings
+
       if (additionalSavings > 0) {
-        // Calculate available balance
-        const availableBalance = summary.totalIncome - 
-                                summary.totalExpense - 
+        const availableBalance = summary.totalIncome -
+                                summary.totalExpense -
                                 summary.totalSavings;
-        
-        // For editing, add back the original savings amount if it was a savings transaction
-        const adjustedBalance = editId && transactions.find(t => t.id === editId)?.type === 'savings' 
-          ? availableBalance + transactions.find(t => t.id === editId).amount 
+
+        const adjustedBalance = editId && transactions.find(t => t.id === editId)?.type === 'savings'
+          ? availableBalance + transactions.find(t => t.id === editId).amount
           : availableBalance;
-        
-        // Check if this savings transaction would create a negative balance
+
         if (adjustedBalance < additionalSavings) {
           return {
             isValid: false,
@@ -166,11 +170,14 @@ function Expenses() {
         }
       }
     }
-    
+
     return { isValid: true };
   };
 
-  // Validate and submit form
+  /**
+   * Validates form data and submits transaction to backend
+   * @param {Event} e - The form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -221,7 +228,10 @@ function Expenses() {
     }
   };
 
-  // Start editing a transaction
+  /**
+   * Populates form with transaction data for editing
+   * @param {Object} transaction - The transaction object to edit
+   */
   const handleEdit = (transaction) => {
     setFormData({
       amount: transaction.amount,
@@ -233,19 +243,26 @@ function Expenses() {
     setEditId(transaction.id);
   };
 
-  // Open delete confirmation dialog
+  /**
+   * Opens the delete confirmation dialog
+   * @param {number} id - The transaction ID to delete
+   */
   const handleDeleteOpen = (id) => {
     setDeleteId(id);
     setDeleteDialogOpen(true);
   };
 
-  // Close delete dialog
+  /**
+   * Closes the delete confirmation dialog
+   */
   const handleDeleteClose = () => {
     setDeleteDialogOpen(false);
     setDeleteId(null);
   };
 
-  // Confirm deletion
+  /**
+   * Confirms and executes transaction deletion
+   */
   const handleDelete = async () => {
     try {
       await api.delete(`/transactions/${deleteId}`);
@@ -256,7 +273,9 @@ function Expenses() {
     }
   };
 
-  // Reset form after submission
+  /**
+   * Resets the form to its initial state
+   */
   const resetForm = () => {
     setFormData({
       amount: '',
@@ -269,10 +288,10 @@ function Expenses() {
   };
 
   // Filter categories based on selected type
-  const filteredCategories = categories.filter(cat => 
-    formData.type === 'income' ? cat.type === 'income' : 
-    formData.type === 'expense' ? cat.type === 'expense' : 
-    formData.type === 'savings' ? cat.type === 'savings' : 
+  const filteredCategories = categories.filter(cat =>
+    formData.type === 'income' ? cat.type === 'income' :
+    formData.type === 'expense' ? cat.type === 'expense' :
+    formData.type === 'savings' ? cat.type === 'savings' :
     true
   );
 
@@ -310,12 +329,12 @@ function Expenses() {
           </Typography>
         </SectionTitle>
 
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: { xs: 'column', md: 'row' }, 
-          justifyContent: 'space-between', 
-          gap: 2, 
-          p: 3 
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          gap: 2,
+          p: 3
         }}>
           {/* Total Income */}
           <Box
@@ -429,9 +448,9 @@ function Expenses() {
                 Net Balance
               </Typography>
             </Box>
-            <Typography variant="h4" sx={{ 
-              fontWeight: 'bold', 
-              color: summary.netBalance >= 0 ? '#9c27b0' : '#f44336' 
+            <Typography variant="h4" sx={{
+              fontWeight: 'bold',
+              color: summary.netBalance >= 0 ? '#9c27b0' : '#f44336'
             }}>
               Ksh.{summary.netBalance.toFixed(2)}
             </Typography>
@@ -468,14 +487,14 @@ function Expenses() {
             {editId ? 'Edit Transaction' : 'Add Transaction'}
           </Typography>
         </SectionTitle>
-        
+
         <Box sx={{ p: 3 }}>
           {/* Top row with all fields except description */}
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row' }, 
-            gap: 2, 
-            mb: 2 
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2,
+            mb: 2
           }}>
             <TextField
               label="Amount"
@@ -531,7 +550,7 @@ function Expenses() {
               />
             </LocalizationProvider>
           </Box>
-          
+
           {/* Description field at the bottom */}
           <TextField
             label="Description"
@@ -541,7 +560,7 @@ function Expenses() {
             sx={{ width: '100%', mb: 2 }}
             variant="outlined"
           />
-          
+
           <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
             <Button
               type="submit"
@@ -580,7 +599,7 @@ function Expenses() {
             Recent Transactions
           </Typography>
         </SectionTitle>
-        
+
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
@@ -611,9 +630,9 @@ function Expenses() {
                   >
                     <TableCell>Ksh.{transaction.amount.toFixed(2)}</TableCell>
                     <TableCell>
-                      <span style={{ 
-                        color: transaction.type === 'income' ? 'green' : 
-                               transaction.type === 'savings' ? 'blue' : 'red' 
+                      <span style={{
+                        color: transaction.type === 'income' ? 'green' :
+                               transaction.type === 'savings' ? 'blue' : 'red'
                       }}>
                         {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}
                       </span>
