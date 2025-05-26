@@ -8,7 +8,6 @@ router.post('/', auth, async (req, res) => {
   console.log(req.body);
   const { amount, type, category, date, description } = req.body;
 
-  // Validate required fields
   if (!amount || !type || !category || !date) {
     return res.status(400).json({ message: 'Amount, type, category, and date are required' });
   }
@@ -19,13 +18,11 @@ router.post('/', auth, async (req, res) => {
     return res.status(400).json({ message: 'Type must be income, expense, or savings' });
   }
   
-  // For expenses and savings, category is required
   if ((type === 'expense' || type === 'savings') && !category) {
     return res.status(400).json({ message: 'Category is required for expense and savings transactions' });
   }
 
   try {
-    // For savings transactions, check if there's enough available balance
     if (type === 'savings' && amount > 0) {
       // Get current balance
       db.get(
@@ -51,12 +48,10 @@ router.post('/', auth, async (req, res) => {
             });
           }
           
-          // If there's enough balance, proceed with creating the transaction
           insertTransaction();
         }
       );
     } else {
-      // For non-savings transactions or negative savings adjustments, proceed as normal
       insertTransaction();
     }
 
@@ -92,13 +87,11 @@ router.get('/', auth, (req, res) => {
     let query = `SELECT * FROM transactions WHERE user_id = ?`;
     let params = [req.user.id];
     
-    // Add type filter if provided
     if (type) {
       query += ` AND type = ?`;
       params.push(type);
     }
     
-    // Add order by date desc
     query += ` ORDER BY date DESC`;
     
     db.all(query, params, (err, transactions) => {
@@ -150,7 +143,6 @@ router.put('/:id', auth, (req, res) => {
   const { id } = req.params;
   const { amount, type, category, date, description } = req.body;
 
-  // Validate required fields
   if (!amount || !type || !category || !date) {
     return res.status(400).json({ message: 'Amount, type, category, and date are required' });
   }
@@ -161,13 +153,11 @@ router.put('/:id', auth, (req, res) => {
     return res.status(400).json({ message: 'Type must be income, expense, or savings' });
   }
   
-  // For expenses and savings, category is required
   if ((type === 'expense' || type === 'savings') && !category) {
     return res.status(400).json({ message: 'Category is required for expense and savings transactions' });
   }
 
   try {
-    // First check if the transaction exists and belongs to the user
     db.get(
       `SELECT * FROM transactions WHERE id = ? AND user_id = ?`,
       [id, req.user.id],
@@ -188,7 +178,6 @@ router.put('/:id', auth, (req, res) => {
             ? amount - transaction.amount 
             : amount;
           
-          // Only validate if there's an increase in savings
           if (additionalSavings > 0) {
             // Get current balance excluding this transaction
             db.get(
@@ -215,16 +204,13 @@ router.put('/:id', auth, (req, res) => {
                   });
                 }
                 
-                // If there's enough balance, proceed with updating the transaction
                 updateTransaction();
               }
             );
           } else {
-            // No increase in savings, proceed with update
             updateTransaction();
           }
         } else {
-          // Not a savings transaction or not increasing savings amount
           updateTransaction();
         }
         
@@ -257,7 +243,6 @@ router.delete('/:id', auth, (req, res) => {
   const { id } = req.params;
 
   try {
-    // First check if the transaction exists and belongs to the user
     db.get(
       `SELECT * FROM transactions WHERE id = ? AND user_id = ?`,
       [id, req.user.id],

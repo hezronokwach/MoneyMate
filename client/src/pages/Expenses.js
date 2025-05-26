@@ -287,7 +287,6 @@ function Expenses() {
     setEditId(null);
   };
 
-  // Filter categories based on selected type
   const filteredCategories = categories.filter(cat =>
     formData.type === 'income' ? cat.type === 'income' :
     formData.type === 'expense' ? cat.type === 'expense' :

@@ -171,7 +171,6 @@ router.post('/:id/achieve', auth, (req, res) => {
           return res.status(400).json({ message: 'This goal has already been achieved' });
         }
 
-        // Check if there's enough savings to achieve the goal
         if (goal.current_savings < goal.target_amount) {
           return res.status(400).json({ 
             message: `Not enough savings to achieve this goal. You need $${(goal.target_amount - goal.current_savings).toFixed(2)} more.`,
@@ -181,11 +180,9 @@ router.post('/:id/achieve', auth, (req, res) => {
           });
         }
 
-        // Begin transaction
         db.serialize(() => {
           db.run('BEGIN TRANSACTION');
 
-          // 1. Mark the goal as achieved
           db.run(
             `UPDATE savings_goals SET achieved = 1 WHERE id = ?`,
             [goalId],

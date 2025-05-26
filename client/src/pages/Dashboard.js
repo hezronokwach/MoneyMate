@@ -143,7 +143,7 @@ function Dashboard() {
         try {
           const summaryData = await api.get('/transactions/summary');
           if (summaryData) {
-            // Use the server-calculated net balance
+            // net balance
             const totalIncome = summaryData.total_income || 0;
             const totalExpenses = summaryData.total_expenses || 0;
             const totalSavings = summaryData.total_savings || 0;
@@ -264,7 +264,7 @@ function Dashboard() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ bgcolor: '#f5f5f5', borderRadius: 2, p: { xs: 2, sm: 3 }, minHeight: '100vh' }}>
-        {/* Header with welcome message */}
+        {/* Header */}
         <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' } }}>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
@@ -276,14 +276,14 @@ function Dashboard() {
           </Box>
         </Box>
 
-        {/* Error message if any */}
+        {/* Error message*/}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
         )}
 
-        {/* Financial Summary Cards with Fade Animation */}
+        {/* Financial Summary Cards*/}
         <Fade in timeout={300}>
           <Box sx={{ mb: 6 }}>
             <SectionTitle bgcolor={sectionColors.summary}>
@@ -325,7 +325,7 @@ function Dashboard() {
           </Box>
         </Fade>
 
-        {/* Financial Tip with Fade Animation */}
+        {/* Financial Tip */}
         <Fade in timeout={500}>
           <Paper
             sx={{
@@ -346,7 +346,7 @@ function Dashboard() {
           </Paper>
         </Fade>
 
-        {/* Main Dashboard Content with Fade Animation */}
+        {/* Main Dashboard Content */}
         <Fade in timeout={700}>
           <Box sx={{ mb: 4 }}>
             <Grid container spacing={4} justifyContent="center">
@@ -512,7 +512,7 @@ function Dashboard() {
           </Box>
         </Fade>
 
-        {/* Savings Goals with Fade Animation */}
+        {/* Savings Goals */}
         <Fade in timeout={900}>
           <Box sx={{ mb: 4 }}>
             <Paper sx={{ p: 0, overflow: 'hidden', borderRadius: 2 }}>

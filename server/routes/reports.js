@@ -50,7 +50,6 @@ router.get('/monthly-savings', auth, (req, res) => {
 // GET /api/reports/spending-by-category - Get spending by category
 router.get('/spending-by-category', auth, (req, res) => {
   try {
-    // Get date range from query params or default to current month
     const today = new Date();
     const endDate = req.query.endDate || today.toISOString().split('T')[0];
     
@@ -169,7 +168,6 @@ router.get('/budget-adherence', auth, (req, res) => {
         
         console.log('Budgets found:', budgets);
         
-        // If no budgets, return empty array
         if (budgets.length === 0) {
           return res.json([]);
         }
@@ -199,7 +197,6 @@ router.get('/budget-adherence', auth, (req, res) => {
             
             console.log('Expenses by category:', expenses);
             
-            // Create a map of category_id to spent amount
             const spentByCategory = {};
             expenses.forEach(expense => {
               spentByCategory[expense.category_id] = expense.spent;
