@@ -89,7 +89,9 @@ function Budgets() {
     fetchExpenses();
   }, []);
 
-  // Fetch budgets from backend
+  
+  // Fetch all budgets from the backend API
+   
   const fetchBudgets = async () => {
     setLoading(true);
     setError('');
@@ -103,7 +105,9 @@ function Budgets() {
     }
   };
 
-  // Fetch categories from backend
+  /**
+   * Fetches expense categories from the backend API
+   */
   const fetchCategories = async () => {
     try {
       const data = await api.get('/categories');
@@ -113,7 +117,9 @@ function Budgets() {
     }
   };
 
-  // Fetch all expenses to calculate spent amounts
+  /**
+   * Fetches all expense transactions to calculate spent amounts
+   */
   const fetchExpenses = async () => {
     try {
       const data = await api.get('/transactions');
@@ -124,24 +130,35 @@ function Budgets() {
     }
   };
 
-  // Calculate how much has been spent for a specific category and month
+  /**
+   * Calculates total amount spent for a specific category and month
+   * @param {string} categoryName - The category to calculate for
+   * @param {string} month - The month in YYYY-MM format
+   * @returns {number} Total amount spent
+   */
   const calculateSpentAmount = (categoryName, month) => {
     // Filter expenses by category and month
     return expenses
-      .filter(expense => 
-        expense.category === categoryName && 
+      .filter(expense =>
+        expense.category === categoryName &&
         expense.date.startsWith(month) // Match YYYY-MM format
       )
       .reduce((total, expense) => total + expense.amount, 0);
   };
 
-  // Handle form input changes
+  /**
+   * Handles changes to form input fields
+   * @param {Event} e - The input change event
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Validate and submit form
+  /**
+   * Validates form data and submits budget to backend
+   * @param {Event} e - The form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -183,7 +200,10 @@ function Budgets() {
     }
   };
 
-  // Start editing a budget
+  /**
+   * Populates form with budget data for editing
+   * @param {Object} budget - The budget object to edit
+   */
   const handleEdit = (budget) => {
     setFormData({
       month: budget.month,
@@ -193,19 +213,24 @@ function Budgets() {
     setEditId(budget.id);
   };
 
-  // Open delete confirmation dialog
+  /**
+   * Opens the delete confirmation dialog
+   * @param {number} id - The budget ID to delete
+   */
   const handleDeleteOpen = (id) => {
     setDeleteId(id);
     setDeleteDialogOpen(true);
   };
 
-  // Close delete dialog
+
   const handleDeleteClose = () => {
     setDeleteDialogOpen(false);
     setDeleteId(null);
   };
 
-  // Confirm deletion
+  /**
+   * Confirms and executes budget deletion
+   */
   const handleDelete = async () => {
     try {
       await api.delete(`/budgets/${deleteId}`);
@@ -218,7 +243,9 @@ function Budgets() {
     }
   };
 
-  // Reset form after submission
+  /**
+   * Resets the form to its initial state
+   */
   const resetForm = () => {
     setFormData({
       month: '',
@@ -228,27 +255,36 @@ function Budgets() {
     setEditId(null);
   };
 
-  // Get current month in YYYY-MM format
+  /**
+   * Gets the current month in YYYY-MM format
+   * @returns {string} Current month as YYYY-MM
+   */
   const getCurrentMonth = () => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   };
 
-  // Get budgets for current month
+  /**
+   * Filters budgets to only include current month
+   * @returns {Array} Array of budgets for current month
+   */
   const getCurrentMonthBudgets = () => {
     const currentMonth = getCurrentMonth();
     return budgets.filter(budget => budget.month === currentMonth);
   };
 
-  // Calculate overall budget health (percentage of budgets that are on track)
+  /**
+   * Calculates overall budget health as percentage of budgets on track
+   * @returns {number} Percentage of budgets that are within their limits
+   */
   const calculateBudgetHealth = () => {
     if (budgets.length === 0) return 100;
-    
+
     const onTrackCount = budgets.filter(budget => {
       const spent = calculateSpentAmount(budget.category, budget.month);
       return spent <= budget.amount;
     }).length;
-    
+
     return Math.round((onTrackCount / budgets.length) * 100);
   };
 
@@ -286,12 +322,12 @@ function Budgets() {
           </Typography>
         </SectionTitle>
 
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: { xs: 'column', md: 'row' }, 
-          justifyContent: 'space-between', 
-          gap: 2, 
-          p: 3 
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          gap: 2,
+          p: 3
         }}>
           {/* Total Budgeted */}
           <Box
@@ -345,9 +381,9 @@ function Budgets() {
                 Total Remaining
               </Typography>
             </Box>
-            <Typography variant="h4" sx={{ 
-              fontWeight: 'bold', 
-              color: summary.totalRemaining >= 0 ? '#4caf50' : '#f44336' 
+            <Typography variant="h4" sx={{
+              fontWeight: 'bold',
+              color: summary.totalRemaining >= 0 ? '#4caf50' : '#f44336'
             }}>
               Ksh.{summary.totalRemaining.toFixed(2)}
             </Typography>
@@ -373,23 +409,23 @@ function Budgets() {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <TrendingUp sx={{ 
-                color: calculateBudgetHealth() > 75 ? '#4caf50' : 
+              <TrendingUp sx={{
+                color: calculateBudgetHealth() > 75 ? '#4caf50' :
                        calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336',
-                mr: 1 
+                mr: 1
               }} />
-              <Typography variant="subtitle1" sx={{ 
-                fontWeight: 'medium', 
-                color: calculateBudgetHealth() > 75 ? '#4caf50' : 
-                       calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336' 
+              <Typography variant="subtitle1" sx={{
+                fontWeight: 'medium',
+                color: calculateBudgetHealth() > 75 ? '#4caf50' :
+                       calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336'
               }}>
                 Budget Health
               </Typography>
             </Box>
-            <Typography variant="h4" sx={{ 
-              fontWeight: 'bold', 
-              color: calculateBudgetHealth() > 75 ? '#4caf50' : 
-                     calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336' 
+            <Typography variant="h4" sx={{
+              fontWeight: 'bold',
+              color: calculateBudgetHealth() > 75 ? '#4caf50' :
+                     calculateBudgetHealth() > 50 ? '#ff9800' : '#f44336'
             }}>
               {calculateBudgetHealth()}%
             </Typography>
@@ -461,13 +497,13 @@ function Budgets() {
             {editId ? 'Edit Budget' : 'Add Budget'}
           </Typography>
         </SectionTitle>
-        
+
         <Box sx={{ p: 3 }}>
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row' }, 
-            gap: 2, 
-            mb: 2 
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2,
+            mb: 2
           }}>
             <TextField
               label="Month (YYYY-MM)"
@@ -505,7 +541,7 @@ function Budgets() {
               variant="outlined"
             />
           </Box>
-          
+
           <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
             <Button
               type="submit"
@@ -539,7 +575,7 @@ function Budgets() {
 
       {/* Budget Progress Visualization */}
       <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4 }}>
-        <Box sx={{ 
+        <Box sx={{
           bgcolor: '#ffffff',
           borderRadius: 2,
           boxShadow: 2,
@@ -550,7 +586,7 @@ function Budgets() {
               Budget Progress
             </Typography>
           </SectionTitle>
-          
+
           <Box sx={{ p: 3 }}>
             {budgets.length === 0 ? (
               <Typography variant="body1" sx={{ textAlign: 'center', py: 3 }}>
@@ -563,7 +599,7 @@ function Budgets() {
                   const remaining = budget.amount - spent;
                   const percentSpent = (spent / budget.amount) * 100;
                   const isOverBudget = spent > budget.amount;
-                  
+
                   return (
                     <Grid item xs={12} sm={6} md={4} key={budget.id}>
                       <Card sx={{ boxShadow: 2, borderRadius: 2 }}>
@@ -578,14 +614,14 @@ function Budgets() {
                               </Typography>
                             </Tooltip>
                           </Box>
-                          
+
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                             <Typography variant="body2" color="text.secondary">
                               Budget: Ksh.{budget.amount.toFixed(2)}
                             </Typography>
-                            <Typography 
-                              variant="body2" 
-                              sx={{ 
+                            <Typography
+                              variant="body2"
+                              sx={{
                                 color: isOverBudget ? 'red' : 'green',
                                 display: 'flex',
                                 alignItems: 'center'
@@ -604,7 +640,7 @@ function Budgets() {
                               )}
                             </Typography>
                           </Box>
-                          
+
                           <Box sx={{ mt: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                               <Box sx={{ width: '100%', mr: 1 }}>
@@ -617,7 +653,7 @@ function Budgets() {
                                       borderRadius: 5,
                                       backgroundColor: '#e0e0e0',
                                       '& .MuiLinearProgress-bar': {
-                                        backgroundColor: percentSpent > 90 ? 'red' : 
+                                        backgroundColor: percentSpent > 90 ? 'red' :
                                                         percentSpent > 75 ? 'orange' : 'green',
                                       }
                                     }}
@@ -630,7 +666,7 @@ function Budgets() {
                                 </Typography>
                               </Box>
                             </Box>
-                            
+
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                               <Typography variant="body2" color="text.secondary">
                                 Spent: Ksh.{spent.toFixed(2)}
@@ -658,7 +694,7 @@ function Budgets() {
             All Budgets
           </Typography>
         </SectionTitle>
-        
+
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
@@ -684,7 +720,7 @@ function Budgets() {
                   // Calculate actual spent amount for this budget
                   const spent = calculateSpentAmount(budget.category, budget.month);
                   const remaining = budget.amount - spent;
-                  
+
                   return (
                     <TableRow
                       key={budget.id}
