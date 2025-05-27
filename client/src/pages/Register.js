@@ -47,7 +47,7 @@ function Register() {
           mb: 4,
         }}
       >
-        Register for MoneyMate
+        Register for Expense Tracker
       </Typography>
       <Paper
         sx={{

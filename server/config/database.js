@@ -2,13 +2,13 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 const db = new sqlite3.Database(
-  process.env.DATABASE_PATH || path.join(__dirname, 'moneymate.db'),
+  process.env.DATABASE_PATH || path.join(__dirname, 'expense-tracker.db'),
   (err) => {
     if (err) {
       console.error('Database connection error:', err);
       throw err;
     }
-    console.log('Connected to moneymate.db');
+    console.log('Connected to expense-tracker.db');
   }
 );
 

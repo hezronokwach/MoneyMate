@@ -1,4 +1,4 @@
-# MoneyMate User Guide
+# Expense Tracker User Guide
 
 ## Dashboard
 

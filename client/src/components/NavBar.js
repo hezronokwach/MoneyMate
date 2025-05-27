@@ -49,7 +49,7 @@ function NavBar() {
         to="/"
         sx={{ mb: 2, fontWeight: 'bold', color: '#1976d2', textDecoration: 'none' }}
       >
-        MoneyMate
+        Expense Tracker
       </Typography>
       <List>
         {navLinks.map((link) => (
@@ -149,7 +149,7 @@ function NavBar() {
               textDecoration: 'none',
             }}
           >
-            MoneyMate
+            Expense Tracker
           </Typography>
           <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             {navLinks.map((link) => (

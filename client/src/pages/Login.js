@@ -42,7 +42,7 @@ function Login() {
           mb: 4,
         }}
       >
-        Login to MoneyMate
+        Login to Expense Tracker
       </Typography>
       <Paper
         sx={{

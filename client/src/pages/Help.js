@@ -36,14 +36,14 @@ function Help() {
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <HelpOutlineIcon sx={{ fontSize: 30, mr: 2, color: 'primary.main' }} />
           <Typography component="h1" variant="h5" color="primary" gutterBottom>
-            MoneyMate Help Guide
+            Expense Tracker Help Guide
           </Typography>
         </Box>
         
         <Divider sx={{ mb: 3 }} />
         
         <Typography variant="body1" paragraph>
-          Welcome to the MoneyMate Help Center. Here you'll find answers to common questions and guidance on how to use the application effectively.
+          Welcome to the Expense Tracker Help Center. Here you'll find answers to common questions and guidance on how to use the application effectively.
         </Typography>
         
         <Typography variant="h6" sx={{ mt: 2, mb: 2, color: '#1976d2', fontWeight: 'bold' }}>
@@ -254,11 +254,11 @@ function Help() {
         </Typography>
         
         <Typography variant="body1" paragraph>
-          If you need additional help or have questions not covered here, please contact our support team at <Box component="span" sx={{ color: 'primary.main', fontWeight: 'medium' }}>support@moneymate.com</Box> or use the feedback form in the application.
+          If you need additional help or have questions not covered here, please contact our support team at <Box component="span" sx={{ color: 'primary.main', fontWeight: 'medium' }}>support@Expense Tracker.com</Box> or use the feedback form in the application.
         </Typography>
         
         <Typography variant="body2" sx={{ mt: 4, color: 'text.secondary' }}>
-          MoneyMate v1.0 - Last updated: {new Date().toLocaleDateString()}
+          Expense Tracker v1.0 - Last updated: {new Date().toLocaleDateString()}
         </Typography>
       </Paper>
     </Box>

@@ -12,7 +12,7 @@ function Footer() {
       }}
     >
       <Typography variant="body1" color="text.primary">
-        MoneyMate © {new Date().getFullYear()}
+        Expense Tracker © {new Date().getFullYear()}
       </Typography>
     </Box>
   );
